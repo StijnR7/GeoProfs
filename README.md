@@ -1,0 +1,24 @@
+- Studenten:
+  - Stijn
+    - Software
+      - Stand-alone application
+      - Code review
+      - OOP code
+      - Ilities
+      - SOLID
+  - Vic
+    - Front-End
+      - End-to-end testing
+    - Backend
+      - API Design
+      - API Testing
+      - Secure coding
+      - Normaliseren van data
+  - Elco
+    - Front-End
+      - Accessibility
+      - Responsive application
+      - Storybook
+      - CSS Framework
+    - Backend
+      - MVC Framework 
