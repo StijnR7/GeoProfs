@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "yctw7YkwbEo=",
+  "dgSpecHash": "YLqShbaBBno=",
   "success": true,
   "projectFilePath": "C:\\Users\\nijme\\source\\repos\\GeoProfs\\GeoProfs\\GeoProfs.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\nijme\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.2\\microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
+    "C:\\Users\\nijme\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.2\\microsoft.extensions.logging.abstractions.8.0.2.nupkg.sha512",
+    "C:\\Users\\nijme\\.nuget\\packages\\npgsql\\9.0.3\\npgsql.9.0.3.nupkg.sha512"
+  ],
   "logs": []
 }
