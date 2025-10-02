@@ -4,35 +4,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
-
+using MySqlConnector;
 
 namespace GeoProfs
 {
     class Database
     {
-        NpgsqlConnection conn;
+        MySqlConnection conn;
 
-        public Database(NpgsqlConnection conn) { 
+        public Database(MySqlConnection conn) { 
             this.conn = conn;
             
         }
         public enum DatabaseTables { 
             users,
-            leave,
-            test
+            leave
         }
        
         public void ShowAllDataFromTable(DatabaseTables table) {
-            var cmd = new NpgsqlCommand($"SELECT * FROM {table}", conn);
+            var cmd = new MySqlCommand($"SELECT * FROM {table}", conn);
             var reader = cmd.ExecuteReader();
 
             while (reader.Read())
             {
-                Console.WriteLine($"" +
-                    $"\nID: {reader["id"]}, " +
-                    $"\nUsername: {reader["username"]}" +
-                    $"\nemail: {reader["email"]}" +
-                    $"\nleave days left: {reader["leaveDaysLeft"]}");
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    Console.Write($"{reader.GetName(i)}: {reader[i]}\n");
+                }
+                Console.WriteLine("\n");
             }
             
             

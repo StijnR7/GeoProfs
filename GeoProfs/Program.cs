@@ -1,24 +1,24 @@
 ﻿using System;
 using GeoProfs;
 using Npgsql;
-
+using MySqlConnector;
 class Program
 {
     static void Main()
     {
-        var connString = "Host=ep-round-morning-agqjwkbq-pooler.c-2.eu-central-1.aws.neon.tech;" +
-                 "Username=neondb_owner;" +
-                 "Password=npg_k4QlPfNz9pRX;" +
-                 "Database=neondb;" +
-                 "Ssl Mode=Require;" +
-                 "Trust Server Certificate=true;";
+        var connString = "Server=q0t164.h.filess.io;Port=3305;" +
+     "User Id=geoprofs_magicfind;" +
+     "Password=24621c3ce4a7d2fd3aae4aafe468aebe432f5d82;" +
+     "Database=geoprofs_magicfind;";
 
-        var conn = new NpgsqlConnection(connString);    
+
+
+        using var conn = new MySqlConnection(connString);
         conn.Open();
 
         Database database = new(conn);
 
-        database.ShowUsers();
+        database.ShowAllDataFromTable(Database.DatabaseTables.users);
         
     }
 }
