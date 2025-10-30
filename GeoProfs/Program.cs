@@ -17,8 +17,14 @@ class Program
         conn.Open();
 
         Database database = new(conn);
+        UserManager userManager = new(conn);
+        //Console.WriteLine(UserManager.Positions.Manager);
+        userManager.CreateUser();
 
-        database.ShowAllDataFromTable(Database.DatabaseTables.users);
-        
+        //database.ShowAllDataFromTable(Database.DatabaseTables.users);
+
+
+
+
     }
 }
