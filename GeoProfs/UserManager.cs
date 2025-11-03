@@ -4,33 +4,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static GeoProfs.UserManager;
-
+using GeoProfs.Enums;
 using MySqlConnector;
 namespace GeoProfs
 {
     internal class UserManager
     {
-       
 
-            
+
+        Database database;
         MySqlConnection conn;
        
         public UserManager(MySqlConnection conn) {
             this.conn = conn;
+            this.database = new Database(conn);
             }
 
        
        
         private IUser CreateUserObject(string role) {
             Dictionary<string, string> defaultUserValues = askDefaultUserValues();
-
+            
 
 
 
 
            switch (role){
                 case "employee":
-                    List<IUser> allManagerUsers = GetAllManagerUsers();
+                    List<IUser> allManagerUsers = database.GetAllManagerUsers();
                     Console.WriteLine("Supervisor?");
                     for (int i = 0; i < allManagerUsers.Count; i++) {
                         Console.WriteLine($"{i}: {allManagerUsers[i].FirstName}");
@@ -96,62 +97,14 @@ namespace GeoProfs
         }
         public void CreateUser()
         {
-            
+        
             Console.WriteLine("Role?");
             string role = Console.ReadLine();
             IUser newUser = CreateUserObject(role);
 
-            if (conn.State != System.Data.ConnectionState.Open)
-                conn.Open();
-            var cmd = new MySqlCommand($@"
-            INSERT INTO {Database.DatabaseTables.users} 
-            (firstName, lastName, email, password, position, bsn, superVisor, startDate, leaveDaysPerYear) 
-            VALUES 
-            ('{newUser.FirstName}', 
-             '{newUser.LastName}', 
-             '{newUser.Email}', 
-             '{newUser.Password}', 
-             '{newUser.Position}', 
-             {newUser.Bsn}, 
-             '{newUser.SuperVisor}', 
-             '{newUser.StartDate:yyyy-MM-dd}', 
-             {newUser.LeaveDaysPerYear});
-        ", conn);
-
-            cmd.ExecuteNonQuery();
-
+            database.SaveUserToDatabase(newUser);
         }
-        public List<IUser> GetAllManagerUsers() {
-            List<IUser> managerUsers = new();
-            string query = "SELECT *\r\nFROM users\r\nWHERE position = 'manager';";
-
-            using (MySqlCommand command = new MySqlCommand(query, conn))
-            using (MySqlDataReader reader = command.ExecuteReader())
-            {
-
-
-                while (reader.Read())
-                {
-                    IUser managerUser = new ManagerUser(
-                        reader["firstName"].ToString(),
-                        reader["lastName"].ToString(),
-                        reader["email"].ToString(),
-                        reader["password"].ToString(),
-                        reader["position"].ToString(),
-                        int.Parse(reader["bsn"].ToString()),
-                        DateTime.Parse(reader["startDate"].ToString())
-
-
-
-                        );
-                    managerUser.ID = int.Parse(reader["id"].ToString());
-                    managerUsers.Add(managerUser);
-
-                }
-            }
-
-            return managerUsers;
-        }
+       
         public Dictionary<string, string> askDefaultUserValues() {
             Dictionary<string, string> defaultUserValues = new Dictionary<string, string>()
         {

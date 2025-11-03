@@ -2,6 +2,7 @@
 using GeoProfs;
 using Npgsql;
 using MySqlConnector;
+
 class Program
 {
     static void Main()
@@ -19,8 +20,10 @@ class Program
         Database database = new(conn);
         UserManager userManager = new(conn);
         //Console.WriteLine(UserManager.Positions.Manager);
-        userManager.CreateUser();
+        //userManager.CreateUser();
+        LeaveManager leaveM = new(conn);
 
+        leaveM.SeeLeaveRequests(true);
         //database.ShowAllDataFromTable(Database.DatabaseTables.users);
 
 
