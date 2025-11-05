@@ -81,4 +81,30 @@ namespace GeoProfs
             LeaveDaysPerYear = leaveDaysPerYear;
         }
     }
+    class DisplayUser : IUser {
+        public int ID { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public string Position { get; set; }
+        public int Bsn { get; set; }
+        public DateTime StartDate { get; set; }
+        public int LeaveDaysPerYear { get; set; } = 365;
+        public int SuperVisor { get; set; } = 0;
+
+        public DisplayUser(string firstName, string lastName, string email, string password, string position, int bsn, DateTime startDate, int leaveDaysPerYear)
+        {
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            Password = password;
+            Position = position;
+            Bsn = bsn;
+            StartDate = startDate;
+            LeaveDaysPerYear = leaveDaysPerYear;
+        }
+
+
+    }
 }

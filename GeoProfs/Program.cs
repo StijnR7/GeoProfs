@@ -15,7 +15,8 @@ class Program
 
 
         using var conn = new MySqlConnection(connString);
-        conn.Open();
+        if (conn.State != System.Data.ConnectionState.Open)
+            conn.Open();
 
         Database database = new(conn);
         UserManager userManager = new(conn);
@@ -23,7 +24,7 @@ class Program
         //userManager.CreateUser();
         LeaveManager leaveM = new(conn);
 
-        leaveM.SeeLeaveRequests(true);
+        leaveM.ManageLeaveRequests(true);
         //database.ShowAllDataFromTable(Database.DatabaseTables.users);
 
 
