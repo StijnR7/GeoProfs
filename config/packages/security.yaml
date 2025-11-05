@@ -1,0 +1,23 @@
+# config/packages/security.yaml
+security:
+    # ...
+
+    firewalls:
+        main:
+            # ...
+            form_login:
+                # "app_login" is the name of the route created previously
+                login_path: app_login
+                check_path: app_login
+               
+  
+    password_hashers:
+        App\Entity\User:
+            algorithm: auto
+
+    providers:
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
