@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using static GeoProfs.UserManager;
 using GeoProfs.Enums;
 using MySqlConnector;
+using System.Runtime.CompilerServices;
 namespace GeoProfs
 {
     internal class UserManager
@@ -126,6 +127,28 @@ namespace GeoProfs
             return defaultUserValues;
 
 
+        }
+        public DisplayUser ChooseUser() {
+            List<DisplayUser> users = database.getAllUsers();
+            string filterWord = string.Empty;
+            ConsoleKeyInfo key = new();
+            bool searching = true;
+            while (searching) {
+               
+                for (int i = 0; i < users.Count; i++) {
+                    if (users[i].FirstName.StartsWith(filterWord)){
+                        Console.WriteLine($"{users[i].FirstName}");
+                    }
+                    
+                }
+                Console.WriteLine($"Current search: {filterWord}\n");
+                key = Console.ReadKey(intercept: true);
+                if (key.Key == ConsoleKey.Enter) { searching = false; }
+                else { filterWord += key.KeyChar; }
+            
+            }
+
+            return null;
         }
     }
 }

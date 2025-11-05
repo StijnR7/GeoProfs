@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace GeoProfs.Enums
 {
-    internal class DatabaseEnums
+    public static class DatabaseEnums
     {
         public enum DatabaseTables
         {
             users,
-            leave
+            leave,
+            shifts
         }
     }
 }

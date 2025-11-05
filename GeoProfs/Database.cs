@@ -108,7 +108,41 @@ namespace GeoProfs
 
             return managerUsers;
         }
-    
+        public List<DisplayUser> getAllUsers()
+        {
+            List < DisplayUser > users = new();
+            string query = "SELECT * FROM `users`;";
+
+            using (MySqlCommand command = new MySqlCommand(query, conn))
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+
+
+                while (reader.Read())
+                {
+                    DisplayUser user = new DisplayUser(
+                        reader["firstName"].ToString(),
+                        reader["lastName"].ToString(),
+                        reader["email"].ToString(),
+                        reader["password"].ToString(),
+                        reader["position"].ToString(),
+                        int.Parse(reader["bsn"].ToString()),
+                        DateTime.Parse(reader["startDate"].ToString()),
+                        int.Parse(reader["leaveDaysPerYear"].ToString())
+
+                     
+
+
+
+                        );
+                    user.ID = int.Parse(reader["id"].ToString());
+                    users.Add(user);
+
+                }
+            }
+            return users;
+
+        }
         public void SaveUserToDatabase(IUser newUser) {
 
 
@@ -171,6 +205,26 @@ namespace GeoProfs
             if (conn.State != System.Data.ConnectionState.Open)
                 conn.Open();
             var cmd = new MySqlCommand($@"UPDATE `{DatabaseEnums.DatabaseTables.leave}` SET `status` = '{newStatus}' WHERE `id` = '{leaveID}';", conn);
+
+            cmd.ExecuteNonQuery();
+
+        }
+
+
+        public void AddShift(int userID, UserEnums.UserPositions position, DateOnly shiftDate,  TimeOnly startTime, TimeOnly endTime) {
+            if (conn.State != System.Data.ConnectionState.Open)
+                conn.Open();
+            var cmd = new MySqlCommand($@"
+            INSERT INTO {DatabaseEnums.DatabaseTables.shifts} 
+            (userID, startTime, endTime, position, shiftDate) 
+            VALUES 
+            ('{userID}',
+             '{startTime}',
+             '{endTime}',
+             '{position}',
+             '{shiftDate:yyyy-MM-dd}'
+            );
+        ", conn);
 
             cmd.ExecuteNonQuery();
 

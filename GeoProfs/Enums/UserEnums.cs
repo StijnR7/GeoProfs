@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GeoProfs.Enums
 {
-    internal class UserEnums
+    public static class UserEnums
     {
         public enum UserPositions
         {

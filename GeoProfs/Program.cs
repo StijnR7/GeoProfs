@@ -22,9 +22,9 @@ class Program
         UserManager userManager = new(conn);
         //Console.WriteLine(UserManager.Positions.Manager);
         //userManager.CreateUser();
-        LeaveManager leaveM = new(conn);
-
-        leaveM.ManageLeaveRequests(true);
+        //LeaveManager leaveM = new(conn);
+        userManager.ChooseUser();
+        //leaveM.ManageLeaveRequests(true);
         //database.ShowAllDataFromTable(Database.DatabaseTables.users);
 
 
