@@ -9,7 +9,8 @@ security:
                 # "app_login" is the name of the route created previously
                 login_path: app_login
                 check_path: app_login
-               
+                username_parameter: _username  
+                password_parameter: _password
   
     password_hashers:
         App\Entity\User:

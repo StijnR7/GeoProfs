@@ -1,23 +1,88 @@
 {# templates/login/index.html.twig #}
 {% extends 'base.html.twig' %}
 
-{# ... #}
+{% block stylesheets %}
+<style>
+    .login-wrapper {
+        max-width: 380px;
+        margin: 4rem auto;
+        padding: 2rem;
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 0 15px rgba(0,0,0,0.15);
+        font-family: system-ui, sans-serif;
+    }
+
+    .login-wrapper h2 {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+
+    .login-wrapper label {
+        display: block;
+        margin-bottom: 0.35rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .login-wrapper input {
+        width: 95%;
+        padding: 0.65rem;
+        margin-bottom: 1.2rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+    }
+
+    .login-wrapper button {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 6px;
+        background: #2c7efb;
+        color: white;
+        cursor: pointer;
+        transition: background .2s ease;
+    }
+
+    .login-wrapper button:hover {
+        background: #1c65d0;
+    }
+
+    .error-msg {
+        padding: 0.8rem;
+        background: #ffd3d3;
+        border: 1px solid #ff8b8b;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        color: #a40606;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
 
 {% block body %}
+<div class="login-wrapper">
+
+    <h2>Login</h2>
+
     {% if error %}
-        <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        <div class="error-msg">
+            {{ error.messageKey|trans(error.messageData, 'security') }}
+        </div>
     {% endif %}
 
     <form action="{{ path('app_login') }}" method="post">
         <label for="username">Email:</label>
         <input type="text" id="username" name="_username" value="{{ last_username }}" required>
 
-        <label for="password">Password:</label>
+        <label for="password">Wachtwoord:</label>
         <input type="password" id="password" name="_password" required>
 
-        {# If you want to control the URL the user is redirected to on success
-        <input type="hidden" name="_target_path" value="/account"> #}
-
-        <button type="submit">login</button>
+        <button type="submit">Login</button>
     </form>
+</div>
 {% endblock %}
