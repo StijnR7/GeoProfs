@@ -1,0 +1,10 @@
+{# templates/dashboard/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <h1>Dashboard</h1>
+        <p>Welkom op het dashboard.</p>
+        <p><a href="{{ path('app_users') }}">Bekijk alle gebruikers</a></p>
+    </div>
+{% endblock %}

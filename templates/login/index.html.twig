@@ -70,7 +70,7 @@
     <h2>Login</h2>
 
     {% if error %}
-        <div class="error-msg">
+        <div class="error error-msg">
             {{ error.messageKey|trans(error.messageData, 'security') }}
         </div>
     {% endif %}
