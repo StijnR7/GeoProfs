@@ -21,20 +21,20 @@ namespace GeoProfs
         public DateTime StartDate { get; set; }
         public int LeaveDaysPerYear { get; set; } = 12;
 
-        public EmployeeUser(string firstName, string lastName, string email, string password, string position, int bsn, DateTime startDate, int superVisor)
+        public EmployeeUser(string firstName, string lastName, string email, string password, string roles, int bsn, DateTime startDate, int superVisor)
         {
             FirstName = firstName;
             LastName = lastName;
             Email = email;
             Password = password;
-            Position = position;
+            Position = roles;
             Bsn = bsn;
             SuperVisor = superVisor;
             StartDate = startDate;
             
         }
     }
-    class ManagerUser : IUser {
+    public class ManagerUser : IUser {
         public string FirstName { get; set; }
         public int ID { get; set; }
         public string LastName { get; set; }
@@ -45,13 +45,13 @@ namespace GeoProfs
         public DateTime StartDate { get; set; }
         public int LeaveDaysPerYear { get; set; } = 12;
         public int SuperVisor { get; set; } = 0;
-        public ManagerUser(string firstName, string lastName, string email, string password, string position, int bsn, DateTime startDate)
+        public ManagerUser(string firstName, string lastName, string email, string password, string roles, int bsn, DateTime startDate)
         {
             FirstName = firstName;
             LastName = lastName;
             Email = email;
             Password = password;
-            Position = position;
+            Position = roles;
             Bsn = bsn;
            
             StartDate = startDate;
@@ -69,13 +69,13 @@ namespace GeoProfs
         public int LeaveDaysPerYear { get; set; } = 365;
         public int SuperVisor { get; set; } = 0;
 
-        public CEOUser(string firstName, string lastName, string email, string password, string position, int bsn, DateTime startDate, int leaveDaysPerYear)
+        public CEOUser(string firstName, string lastName, string email, string password, string roles, int bsn, DateTime startDate, int leaveDaysPerYear)
         {
             FirstName = firstName;
             LastName = lastName;
             Email = email;
             Password = password;
-            Position = position;
+            Position = roles;
             Bsn = bsn;
             StartDate = startDate;
             LeaveDaysPerYear = leaveDaysPerYear;
@@ -93,13 +93,13 @@ namespace GeoProfs
         public int LeaveDaysPerYear { get; set; } = 365;
         public int SuperVisor { get; set; } = 0;
 
-        public DisplayUser(string firstName, string lastName, string email, string password, string position, int bsn, DateTime startDate, int leaveDaysPerYear)
+        public DisplayUser(string firstName, string lastName, string email, string password, string roles, int bsn, DateTime startDate, int leaveDaysPerYear)
         {
             FirstName = firstName;
             LastName = lastName;
             Email = email;
             Password = password;
-            Position = position;
+            Position = roles;
             Bsn = bsn;
             StartDate = startDate;
             LeaveDaysPerYear = leaveDaysPerYear;

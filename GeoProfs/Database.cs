@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace GeoProfs
 {
@@ -79,7 +80,7 @@ namespace GeoProfs
         public List<IUser> GetAllManagerUsers()
         {
             List<IUser> managerUsers = new();
-            string query = "SELECT *\r\nFROM users\r\nWHERE position = 'manager';";
+            string query = "SELECT *\r\nFROM user\r\nWHERE roles = '[\"ROLE_ADMIN\"]';";
 
             using (MySqlCommand command = new MySqlCommand(query, conn))
             using (MySqlDataReader reader = command.ExecuteReader())
@@ -93,7 +94,7 @@ namespace GeoProfs
                         reader["lastName"].ToString(),
                         reader["email"].ToString(),
                         reader["password"].ToString(),
-                        reader["position"].ToString(),
+                        reader["roles"].ToString(),
                         int.Parse(reader["bsn"].ToString()),
                         DateTime.Parse(reader["startDate"].ToString())
 
@@ -111,7 +112,7 @@ namespace GeoProfs
         public List<DisplayUser> getAllUsers()
         {
             List < DisplayUser > users = new();
-            string query = "SELECT * FROM `users`;";
+            string query = "SELECT * FROM `user`;";
 
             using (MySqlCommand command = new MySqlCommand(query, conn))
             using (MySqlDataReader reader = command.ExecuteReader())
@@ -125,7 +126,7 @@ namespace GeoProfs
                         reader["lastName"].ToString(),
                         reader["email"].ToString(),
                         reader["password"].ToString(),
-                        reader["position"].ToString(),
+                        reader["roles"].ToString(),
                         int.Parse(reader["bsn"].ToString()),
                         DateTime.Parse(reader["startDate"].ToString()),
                         int.Parse(reader["leaveDaysPerYear"].ToString())
@@ -149,8 +150,8 @@ namespace GeoProfs
             if (conn.State != System.Data.ConnectionState.Open)
                 conn.Open();
             var cmd = new MySqlCommand($@"
-            INSERT INTO {DatabaseEnums.DatabaseTables.users} 
-            (firstName, lastName, email, password, position, bsn, superVisor, startDate, leaveDaysPerYear) 
+            INSERT INTO {DatabaseEnums.DatabaseTables.user} 
+            (firstName, lastName, email, password, roles, bsn, superVisor, startDate, leaveDaysPerYear) 
             VALUES 
             ('{newUser.FirstName}', 
              '{newUser.LastName}', 
@@ -169,7 +170,7 @@ namespace GeoProfs
         public DisplayUser GetUserFromID(int userID) {
             if (conn.State != System.Data.ConnectionState.Open)
                 conn.Open();
-            string query = $"SELECT *\r\nFROM users\r\nWHERE id = '{userID}';";
+            string query = $"SELECT *\r\nFROM user\r\nWHERE id = '{userID}';";
             DisplayUser displayUser;
             using (MySqlCommand command = new MySqlCommand(query, conn))
             using (MySqlDataReader reader = command.ExecuteReader())
@@ -178,13 +179,13 @@ namespace GeoProfs
 
                 while (reader.Read())
                 {
-                    if (reader["position"].ToString() != "employee") { continue; }
+                    if (reader["roles"].ToString() != "[\"ROLE_USER\"]") { continue; }
                     DisplayUser user = new DisplayUser(
                           reader["firstName"].ToString(),
                         reader["lastName"].ToString(),
                         reader["email"].ToString(),
                         reader["password"].ToString(),
-                        reader["position"].ToString(),
+                        reader["roles"].ToString(),
                         int.Parse(reader["bsn"].ToString()),
                         DateTime.Parse(reader["startDate"].ToString()),
                         int.Parse(reader["leaveDaysPerYear"].ToString())
@@ -211,17 +212,17 @@ namespace GeoProfs
         }
 
 
-        public void AddShift(int userID, UserEnums.UserPositions position, DateOnly shiftDate,  TimeOnly startTime, TimeOnly endTime) {
+        public void AddShift(int userID, UserEnums.UserPositions roles, DateOnly shiftDate,  TimeOnly startTime, TimeOnly endTime) {
             if (conn.State != System.Data.ConnectionState.Open)
                 conn.Open();
             var cmd = new MySqlCommand($@"
             INSERT INTO {DatabaseEnums.DatabaseTables.shifts} 
-            (userID, startTime, endTime, position, shiftDate) 
+            (userID, startTime, endTime, roles, shiftDate) 
             VALUES 
             ('{userID}',
              '{startTime}',
              '{endTime}',
-             '{position}',
+             '{roles}',
              '{shiftDate:yyyy-MM-dd}'
             );
         ", conn);
@@ -229,7 +230,43 @@ namespace GeoProfs
             cmd.ExecuteNonQuery();
 
         }
+        // [F]
+        public ManagerUser GetManagerFromLoginCred(string email, string password) {
+            if (conn.State != System.Data.ConnectionState.Open)
+            {
+                conn.Open();
+            }
 
+            string query = $"SELECT *\r\nFROM user\r\nWHERE email = '{email}' AND password = '{password}' AND roles = \"[\\\"ROLE_ADMIN\\\"]\";";
+            ManagerUser displayUser;
+            using (MySqlCommand command = new MySqlCommand(query, conn))
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+
+
+                while (reader.Read())
+                {
+                    
+                    ManagerUser user = new ManagerUser(
+                          reader["firstName"].ToString(),
+                        reader["lastName"].ToString(),
+                        reader["email"].ToString(),
+                        reader["password"].ToString(),
+                        reader["roles"].ToString(),
+                        int.Parse(reader["bsn"].ToString()),
+                        DateTime.Parse(reader["startDate"].ToString())
+
+
+                        );
+
+                    return user;
+
+                }
+            }
+            return null;
+
+
+        }
 
     }
 }

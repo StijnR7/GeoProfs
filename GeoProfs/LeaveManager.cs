@@ -11,6 +11,7 @@ namespace GeoProfs
     {
         Database database;
         MySqlConnection conn;
+        EmailService emailService = new();
         public LeaveManager(MySqlConnection conn)
         {
             this.conn = conn;
@@ -22,7 +23,7 @@ namespace GeoProfs
         
         }
         // [F]  
-        public int ManageLeaveRequests(bool selectRequestID) {
+        public void ManageLeaveRequests() {
            
             bool running = true;
             while (running)
@@ -48,6 +49,7 @@ namespace GeoProfs
                 int choice;
                 bool success = int.TryParse(Console.ReadLine(), out choice);
 
+                DisplayUser chosenUser = database.GetUserFromID(leaveRequestsPending[choice].UserId);
                 if (success)
                 {
                     Console.WriteLine($"[1] Accept\n[2] Deny\n[3] Back");
@@ -57,9 +59,12 @@ namespace GeoProfs
                         switch (choice2) {
                             case 1:
                                 database.ChangeLeaveStatus(leaveRequestsPending[choice].Id, LeaveEnums.LeaveStatus.accepted);
+                                emailService.SendLeaveStatusUpdateEmail(chosenUser.Email, LeaveEnums.LeaveStatus.accepted, leaveRequestsPending[choice]);
                                 break;
                             case 2:
                                 database.ChangeLeaveStatus(leaveRequestsPending[choice].Id, LeaveEnums.LeaveStatus.denied);
+
+                                emailService.SendLeaveStatusUpdateEmail(chosenUser.Email, LeaveEnums.LeaveStatus.denied, leaveRequestsPending[choice]);
                                 break;
                             case 3:
                                
@@ -75,7 +80,6 @@ namespace GeoProfs
 
 
 
-            return 0;
         
         }
     }

@@ -32,6 +32,7 @@ namespace GeoProfs
 
            switch (role){
                 case "employee":
+                    role = "'[\"ROLE_USER\"]'";
                     List<IUser> allManagerUsers = database.GetAllManagerUsers();
                     Console.WriteLine("Supervisor?");
                     for (int i = 0; i < allManagerUsers.Count; i++) {
@@ -57,6 +58,7 @@ namespace GeoProfs
                     return user;
                     
                 case "manager":
+                    role = "'[\"ROLE_ADMIN\"]'";
                     IUser mUser = new ManagerUser(
                    defaultUserValues["FirstName"],
                    defaultUserValues["LastName"],
@@ -74,6 +76,7 @@ namespace GeoProfs
                     return mUser;
                    
                 case "CEO":
+                    role = "'[\"ROLE_ADMIN\"]'";
                     IUser cUser = new ManagerUser(
                   defaultUserValues["FirstName"],
                   defaultUserValues["LastName"],
@@ -129,26 +132,50 @@ namespace GeoProfs
 
         }
         public DisplayUser ChooseUser() {
-            List<DisplayUser> users = database.getAllUsers();
+            List<DisplayUser> user = database.getAllUsers();
             string filterWord = string.Empty;
             ConsoleKeyInfo key = new();
+            List<DisplayUser> filteredUsers = new();
             bool searching = true;
             while (searching) {
-               
-                for (int i = 0; i < users.Count; i++) {
-                    if (users[i].FirstName.StartsWith(filterWord)){
-                        Console.WriteLine($"{users[i].FirstName}");
+                filteredUsers.Clear();
+                for (int i = 0; i < user.Count; i++) {
+                    if (user[i].FirstName.StartsWith(filterWord)){
+                        Console.WriteLine($"{user[i].FirstName}");
+                        filteredUsers.Add(user[i]);
                     }
                     
                 }
                 Console.WriteLine($"Current search: {filterWord}\n");
                 key = Console.ReadKey(intercept: true);
                 if (key.Key == ConsoleKey.Enter) { searching = false; }
+                else if (key.Key == ConsoleKey.Backspace && filterWord.Length > 0) {
+                    filterWord = filterWord.Remove(filterWord.Length - 1);
+                
+                }
                 else { filterWord += key.KeyChar; }
             
             }
 
-            return null;
+			for (int i = 0; i < filteredUsers.Count; i++)
+			{
+                Console.WriteLine("Filtered users:\n");
+                Console.WriteLine($"[{i}] "+filteredUsers[i].FirstName + "\n");
+
+			}
+
+            Console.WriteLine("Choose user");
+            int choice;
+            while (true)
+            {
+                bool success = int.TryParse(Console.ReadLine(), out choice);
+                if (success)
+                {
+                    return filteredUsers[choice];
+                }
+                
+            }
+
         }
     }
 }

@@ -36,7 +36,7 @@ namespace GeoProfs.Tests
             {"startTime", "08:30"},
             {"endTime", "17:00"},
             {"shiftDate", "2023-02-20"},
-            {"position", "employee"}
+            {"roles", "employee"}
         };
 
         [SetUp]
@@ -73,7 +73,7 @@ namespace GeoProfs.Tests
         [Test]
         public void UserDataCorrect()
         {
-            Assert.That(testUser.FirstName == userTestValues["firstName"], Is.True);
+            
             Assert.That(testUser.LastName == userTestValues["lastName"], Is.True);
             Assert.That(testUser.Email == userTestValues["email"], Is.True);
             Assert.That(testUser.Password == userTestValues["password"], Is.True);
@@ -98,7 +98,13 @@ namespace GeoProfs.Tests
 
             Assert.That(testShift.ShiftDate == DateOnly.Parse(shiftTestValues["shiftDate"]), Is.True);
 
-            Assert.That(testShift.Position.ToString().ToLower() == shiftTestValues["position"], Is.True);
+            Assert.That(testShift.Position.ToString().ToLower() == shiftTestValues["roles"], Is.True);
+        }
+
+        [Test]
+        public void nameDataCorrect() {
+            Assert.That(testUser.FirstName == userTestValues["firstName"], Is.True);
+
         }
     }
 }

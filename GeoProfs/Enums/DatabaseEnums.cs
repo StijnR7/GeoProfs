@@ -10,7 +10,7 @@ namespace GeoProfs.Enums
     {
         public enum DatabaseTables
         {
-            users,
+            user,
             leave,
             shifts
         }
