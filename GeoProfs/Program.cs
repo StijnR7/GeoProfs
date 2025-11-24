@@ -25,9 +25,11 @@ class Program
         //userManager.CreateUser();
         //LeaveManager leaveM = new(conn);
         //leaveM.ManageLeaveRequests();
-        SessionManager sessionManager = new(conn);
-        sessionManager.Login();
+        //SessionManager sessionManager = new(conn);
+        //sessionManager.Login();
         //database.ShowAllDataFromTable(Database.DatabaseTables.user);
+
+
 
 
 
