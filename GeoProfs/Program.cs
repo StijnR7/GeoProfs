@@ -18,11 +18,11 @@ class Program
         using var conn = new MySqlConnection(connString);
         if (conn.State != System.Data.ConnectionState.Open)
             conn.Open();
-
+        
         Database database = new(conn);
         UserManager userManager = new(conn);
         //Console.WriteLine(UserManager.Positions.Manager);
-        //userManager.CreateUser();
+        userManager.CreateUser();
         //LeaveManager leaveM = new(conn);
         //leaveM.ManageLeaveRequests();
         //SessionManager sessionManager = new(conn);

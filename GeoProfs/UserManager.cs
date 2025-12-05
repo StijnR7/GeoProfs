@@ -25,9 +25,18 @@ namespace GeoProfs
        
         private IUser CreateUserObject(string role) {
             Dictionary<string, string> defaultUserValues = askDefaultUserValues();
+
+
+            List<Department> departments = database.GetDepartments();
+            Console.WriteLine("Department?");
+            for (int i = 0; i < departments.Count; i++) {
+                Console.WriteLine($"[{i}]: {departments[i].Name}\n");
             
-
-
+            }
+            int choice1;
+            bool success = int.TryParse(Console.ReadLine(), out choice1);
+            if (!success) { return null; }
+            Department chosenDepartment = departments[choice1];
 
 
            switch (role){
@@ -55,6 +64,8 @@ namespace GeoProfs
 
 
                         );
+                    user.Department = chosenDepartment;
+                    
                     return user;
                     
                 case "manager":
@@ -73,6 +84,7 @@ namespace GeoProfs
 
 
                    );
+                    mUser.Department = chosenDepartment;
                     return mUser;
                    
                 case "CEO":
@@ -91,6 +103,7 @@ namespace GeoProfs
 
 
                   );
+                    cUser.Department = chosenDepartment;
                     return cUser;
 
 

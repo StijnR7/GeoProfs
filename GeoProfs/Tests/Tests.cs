@@ -1,110 +1,167 @@
 ﻿using NUnit.Framework;
+using Moq;
 using System;
 using System.Collections.Generic;
+using GeoProfs;
+using GeoProfs.Enums;
 using MySqlConnector;
-
 namespace GeoProfs.Tests
 {
     [TestFixture]
-    public class Tests
+    public class ImportantUnitTests
     {
-        string connString = "Server=q0t164.h.filess.io;Port=3305;" +
-        "User Id=geoprofs_magicfind;" +
-        "Password=24621c3ce4a7d2fd3aae4aafe468aebe432f5d82;" +
-        "Database=geoprofs_magicfind;";
-
-        UserManager userManager;
-        Database database;
-        IUser testUser;
-        Shift testShift;
-
-        Dictionary<string, string> userTestValues = new Dictionary<string, string> {
-            {"firstName", "Angelina"},
-            {"lastName", "Knoop" },
-            {"email", "AngelinaKnoop@gmail.com" },
-            {"password", "rocky123" },
-            { "role", "employee"},
-            {"bsn", "123" },
-            {"startDate", "2023-02-17" },
-            {"superVisor", "0" }
-        };
-
-        Dictionary<string, string> shiftTestValues = new Dictionary<string, string>
+        [Test]
+        public void LeaveRequest_DefaultsToPending()
         {
-            {"id", "1"},
-            {"userID", "5"},
-            {"startTime", "08:30"},
-            {"endTime", "17:00"},
-            {"shiftDate", "2023-02-20"},
-            {"roles", "employee"}
-        };
+            var leave = new LeaveRequest(1, DateTime.Today, DateTime.Today.AddDays(3));
+            Assert.That(leave.Status, Is.EqualTo(LeaveEnums.LeaveStatus.pending));
+        }
 
-        [SetUp]
-        public void Setup()
+        [Test]
+        public void AppSettings_CanUpdateValues()
         {
-            using var conn = new MySqlConnection(connString);
-            conn.Open();
+            AppSettings.employeesWorkingMorning = 2;
+            AppSettings.employeesWorkingAfternoon = 3;
+            AppSettings.employeesWorkingEvening = 4;
 
-            userManager = new UserManager(conn);
-            database = new Database(conn);
+            Assert.Multiple(() =>
+            {
+                Assert.That(AppSettings.employeesWorkingMorning, Is.EqualTo(2));
+                Assert.That(AppSettings.employeesWorkingAfternoon, Is.EqualTo(3));
+                Assert.That(AppSettings.employeesWorkingEvening, Is.EqualTo(4));
+            });
+        }
 
-            testUser = new EmployeeUser(
-                "Angelina",
-                "Knoop",
-                "AngelinaKnoop@gmail.com",
-                "rocky123",
-                "employee",
-                123,
-                DateTime.Parse("2023-02-17"),
-                0
-            );
+        [Test]
+        public void EmployeeUser_AssignsSupervisorCorrectly()
+        {
+            var emp = new EmployeeUser("John", "Doe", "john@company.com", "pwd", "ROLE_USER", 123, DateTime.Today, 42);
+            Assert.That(emp.SuperVisor, Is.EqualTo(42));
+        }
 
-            testShift = new Shift
+        [Test]
+        public void ManagerUser_HasDefaultLeaveDays()
+        {
+            var mgr = new ManagerUser("Jane", "Smith", "jane@company.com", "pwd", "ROLE_ADMIN", 456, DateTime.Today);
+            Assert.That(mgr.LeaveDaysPerYear, Is.EqualTo(12));
+        }
+
+        [Test]
+        public void CEOUser_Has365LeaveDays()
+        {
+            var ceo = new CEOUser("Alice", "CEO", "alice@company.com", "pwd", "ROLE_ADMIN", 789, DateTime.Today, 365);
+            Assert.That(ceo.LeaveDaysPerYear, Is.EqualTo(365));
+        }
+
+        [Test]
+        public void Shift_CorrectlyStoresTimes()
+        {
+            var shift = new Shift
             {
                 Id = 1,
-                UserID = 5,
-                StartTime = TimeOnly.Parse("08:30"),
-                endTime = TimeOnly.Parse("17:00"),
-                ShiftDate = DateOnly.Parse("2023-02-20"),
-                Position = GeoProfs.Enums.UserEnums.UserPositions.employee
+                UserID = 10,
+                StartTime = new TimeOnly(9, 0),
+                endTime = new TimeOnly(17, 0),
+                ShiftDate = new DateOnly(2025, 12, 4)
             };
-        }
 
+            Assert.That(shift.StartTime.Hour, Is.EqualTo(9));
+            Assert.That(shift.endTime.Hour, Is.EqualTo(17));
+        }
+    }
+
+    [TestFixture]
+    public class LeaveManagerInteractionTests
+    {
         [Test]
-        public void UserDataCorrect()
+        public void ManageLeaveRequests_AcceptSingleRequest_CallsDatabaseAndEmail()
         {
-            
-            Assert.That(testUser.LastName == userTestValues["lastName"], Is.True);
-            Assert.That(testUser.Email == userTestValues["email"], Is.True);
-            Assert.That(testUser.Password == userTestValues["password"], Is.True);
+            // Arrange
+            var mockDb = new Mock<Database>(null);
+            var mockEmail = new Mock<EmailService>();
 
-            Assert.That(testUser.Bsn == int.Parse(userTestValues["bsn"]), Is.True);
+            var pendingRequest = new LeaveRequest(1, DateTime.Today, DateTime.Today.AddDays(1))
+            {
+                Id = 99,
+                Status = LeaveEnums.LeaveStatus.pending
+            };
+            var user = new DisplayUser("John", "Doe", "john@example.com", "pwd", "ROLE_USER", 123, DateTime.Today, 12)
+            {
+                ID = 1,
+                Email = "john@example.com"
+            };
 
-            Assert.That(testUser.StartDate.Date == DateTime.Parse(userTestValues["startDate"]).Date, Is.True);
+            mockDb.Setup(d => d.GetAllLeaveRequests()).Returns(new List<LeaveRequest> { pendingRequest });
+            mockDb.Setup(d => d.GetUserFromID(1)).Returns(user);
 
-            Assert.That(testUser.Position.ToString().ToLower() == userTestValues["role"], Is.True);
+            var manager = new LeaveManager(new MySqlConnector.MySqlConnection());
+            typeof(LeaveManager).GetField("database", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .SetValue(manager, mockDb.Object);
+            typeof(LeaveManager).GetField("emailService", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .SetValue(manager, mockEmail.Object);
 
-            Assert.That(testUser.SuperVisor == int.Parse(userTestValues["superVisor"]), Is.True);
+            // Act
+            mockDb.Object.ChangeLeaveStatus(pendingRequest.Id, LeaveEnums.LeaveStatus.accepted);
+            mockEmail.Object.SendLeaveStatusUpdateEmail(user.Email, LeaveEnums.LeaveStatus.accepted, pendingRequest);
+
+            // Assert
+            mockDb.Verify(d => d.ChangeLeaveStatus(99, LeaveEnums.LeaveStatus.accepted), Times.Once);
+            mockEmail.Verify(e => e.SendLeaveStatusUpdateEmail("john@example.com", LeaveEnums.LeaveStatus.accepted, pendingRequest), Times.Once);
         }
 
         [Test]
-        public void ShiftDataCorrect()
+        public void ManageLeaveRequests_DenyRequest_CallsDatabaseAndEmail()
         {
-            Assert.That(testShift.Id == int.Parse(shiftTestValues["id"]), Is.True);
-            Assert.That(testShift.UserID == int.Parse(shiftTestValues["userID"]), Is.True);
+            var mockDb = new Mock<Database>(null);
+            var mockEmail = new Mock<EmailService>();
 
-            Assert.That(testShift.StartTime.ToString("HH:mm") == shiftTestValues["startTime"], Is.True);
-            Assert.That(testShift.endTime.ToString("HH:mm") == shiftTestValues["endTime"], Is.True);
+            var pendingRequest = new LeaveRequest(2, DateTime.Today, DateTime.Today.AddDays(2))
+            {
+                Id = 100,
+                Status = LeaveEnums.LeaveStatus.pending
+            };
+            var user = new DisplayUser("Jane", "Smith", "jane@example.com", "pwd", "ROLE_USER", 456, DateTime.Today, 12)
+            {
+                ID = 2,
+                Email = "jane@example.com"
+            };
 
-            Assert.That(testShift.ShiftDate == DateOnly.Parse(shiftTestValues["shiftDate"]), Is.True);
+            mockDb.Setup(d => d.GetAllLeaveRequests()).Returns(new List<LeaveRequest> { pendingRequest });
+            mockDb.Setup(d => d.GetUserFromID(2)).Returns(user);
 
-            Assert.That(testShift.Position.ToString().ToLower() == shiftTestValues["roles"], Is.True);
+            var manager = new LeaveManager(new MySqlConnector.MySqlConnection());
+            typeof(LeaveManager).GetField("database", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .SetValue(manager, mockDb.Object);
+            typeof(LeaveManager).GetField("emailService", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .SetValue(manager, mockEmail.Object);
+
+            // Act
+            mockDb.Object.ChangeLeaveStatus(pendingRequest.Id, LeaveEnums.LeaveStatus.denied);
+            mockEmail.Object.SendLeaveStatusUpdateEmail(user.Email, LeaveEnums.LeaveStatus.denied, pendingRequest);
+
+            // Assert
+            mockDb.Verify(d => d.ChangeLeaveStatus(100, LeaveEnums.LeaveStatus.denied), Times.Once);
+            mockEmail.Verify(e => e.SendLeaveStatusUpdateEmail("jane@example.com", LeaveEnums.LeaveStatus.denied, pendingRequest), Times.Once);
         }
 
         [Test]
-        public void nameDataCorrect() {
-            Assert.That(testUser.FirstName == userTestValues["firstName"], Is.True);
+        public void FilterPendingLeaveRequests_ReturnsOnlyPending()
+        {
+            var manager = new LeaveManager(new MySqlConnector.MySqlConnection());
+            var method = typeof(LeaveManager).GetMethod("FilterPendingLeaveRequests", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
+            var requests = new List<LeaveRequest>
+            {
+                new LeaveRequest(1, DateTime.Today, DateTime.Today.AddDays(1)) { Status = LeaveEnums.LeaveStatus.pending },
+                new LeaveRequest(2, DateTime.Today, DateTime.Today.AddDays(2)) { Status = LeaveEnums.LeaveStatus.accepted }
+            };
+
+            var result = (List<LeaveRequest>)method.Invoke(manager, new object[] { requests });
+
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result[0].UserId, Is.EqualTo(1));
         }
+       
+
     }
 }

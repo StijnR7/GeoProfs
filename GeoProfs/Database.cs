@@ -11,18 +11,27 @@ using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext
 
 namespace GeoProfs
 {
-    class Database
+    public class Database
     {
         MySqlConnection conn;
 
-        public Database(MySqlConnection conn) { 
+        public Database(MySqlConnection conn)
+        {
             this.conn = conn;
-            
         }
-        
-       
-       
-        public void ShowAllDataFromTable(DatabaseEnums.DatabaseTables table) {
+
+
+        public virtual void DeleteUser(int userId)
+        {
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = "DELETE FROM user WHERE id = @id";
+            cmd.Parameters.AddWithValue("@id", userId);
+            cmd.ExecuteNonQuery();
+        }
+
+
+        public void ShowAllDataFromTable(DatabaseEnums.DatabaseTables table)
+        {
             var cmd = new MySqlCommand($"SELECT * FROM `{table}`;", conn);
             var reader = cmd.ExecuteReader();
 
@@ -34,17 +43,13 @@ namespace GeoProfs
                 }
                 Console.WriteLine("\n");
             }
-            
-            
-
         }
 
-        // [T] 
-        public List<LeaveRequest> GetAllLeaveRequests()
+        public virtual List<LeaveRequest> GetAllLeaveRequests()
         {
             var leaveRequests = new List<LeaveRequest>();
-
             string query = $"SELECT * FROM `{DatabaseEnums.DatabaseTables.leave}`;";
+
             using (var cmd = new MySqlCommand(query, conn))
             using (var reader = cmd.ExecuteReader())
             {
@@ -55,20 +60,14 @@ namespace GeoProfs
                         DateTime.Parse(reader["leaveStart"].ToString()),
                         DateTime.Parse(reader["leaveEnd"].ToString())
                     );
-                    bool success = Enum.TryParse(reader["status"].ToString(), out LeaveEnums.LeaveStatus currentStatus);
-                    if (success) { req.Status = currentStatus; }
+
+                    Enum.TryParse(reader["status"].ToString(), out LeaveEnums.LeaveStatus currentStatus);
+                    req.Status = currentStatus;
+
                     int leaveID;
-                    if (!int.TryParse(reader["id"].ToString(), out leaveID))
-                    {
-                        Console.WriteLine("No valid id found");
-                    }
-                    else {
+                    if (int.TryParse(reader["id"].ToString(), out leaveID))
                         req.Id = leaveID;
-                    }
 
-                    {
-
-                    }
                     leaveRequests.Add(req);
                 }
             }
@@ -76,17 +75,14 @@ namespace GeoProfs
             return leaveRequests;
         }
 
-
         public List<IUser> GetAllManagerUsers()
         {
             List<IUser> managerUsers = new();
-            string query = "SELECT *\r\nFROM user\r\nWHERE roles = '[\"ROLE_ADMIN\"]';";
+            string query = "SELECT * FROM user WHERE roles = '[\"ROLE_ADMIN\"]';";
 
             using (MySqlCommand command = new MySqlCommand(query, conn))
             using (MySqlDataReader reader = command.ExecuteReader())
             {
-
-
                 while (reader.Read())
                 {
                     IUser managerUser = new ManagerUser(
@@ -97,28 +93,23 @@ namespace GeoProfs
                         reader["roles"].ToString(),
                         int.Parse(reader["bsn"].ToString()),
                         DateTime.Parse(reader["startDate"].ToString())
-
-
-
-                        );
+                    );
                     managerUser.ID = int.Parse(reader["id"].ToString());
                     managerUsers.Add(managerUser);
-
                 }
             }
 
             return managerUsers;
         }
+
         public List<DisplayUser> getAllUsers()
         {
-            List < DisplayUser > users = new();
+            List<DisplayUser> users = new();
             string query = "SELECT * FROM `user`;";
 
             using (MySqlCommand command = new MySqlCommand(query, conn))
             using (MySqlDataReader reader = command.ExecuteReader())
             {
-
-
                 while (reader.Read())
                 {
                     DisplayUser user = new DisplayUser(
@@ -130,58 +121,56 @@ namespace GeoProfs
                         int.Parse(reader["bsn"].ToString()),
                         DateTime.Parse(reader["startDate"].ToString()),
                         int.Parse(reader["leaveDaysPerYear"].ToString())
-
-                     
-
-
-
-                        );
+                    );
                     user.ID = int.Parse(reader["id"].ToString());
                     users.Add(user);
-
                 }
             }
             return users;
-
         }
-        public void SaveUserToDatabase(IUser newUser) {
 
-
+        public void SaveUserToDatabase(IUser newUser)
+        {
             if (conn.State != System.Data.ConnectionState.Open)
                 conn.Open();
+
             var cmd = new MySqlCommand($@"
-            INSERT INTO {DatabaseEnums.DatabaseTables.user} 
-            (firstName, lastName, email, password, roles, bsn, superVisor, startDate, leaveDaysPerYear) 
-            VALUES 
-            ('{newUser.FirstName}', 
-             '{newUser.LastName}', 
-             '{newUser.Email}', 
-             '{newUser.Password}', 
-             '{newUser.Position}', 
-             {newUser.Bsn}, 
-             '{newUser.SuperVisor}', 
-             '{newUser.StartDate:yyyy-MM-dd}', 
-             {newUser.LeaveDaysPerYear});
-        ", conn);
+        INSERT INTO {DatabaseEnums.DatabaseTables.user} 
+        (firstName, lastName, email, password, roles, bsn, superVisor, startDate, leaveDaysPerYear, department) 
+        VALUES 
+        ('{MySqlHelper.EscapeString(newUser.FirstName)}', 
+         '{MySqlHelper.EscapeString(newUser.LastName)}', 
+         '{MySqlHelper.EscapeString(newUser.Email)}', 
+         '{MySqlHelper.EscapeString(newUser.Password)}', 
+         '{MySqlHelper.EscapeString(newUser.Position)}', 
+         {newUser.Bsn}, 
+         {newUser.SuperVisor}, 
+         '{newUser.StartDate:yyyy-MM-dd}', 
+         {newUser.LeaveDaysPerYear},
+         '{MySqlHelper.EscapeString(newUser.Department.Name)}'
+        );
+    ", conn);
 
             cmd.ExecuteNonQuery();
-
         }
-        public DisplayUser GetUserFromID(int userID) {
+
+
+        public virtual DisplayUser GetUserFromID(int userID)
+        {
             if (conn.State != System.Data.ConnectionState.Open)
                 conn.Open();
-            string query = $"SELECT *\r\nFROM user\r\nWHERE id = '{userID}';";
-            DisplayUser displayUser;
+
+            string query = $"SELECT * FROM user WHERE id = '{userID}';";
+
             using (MySqlCommand command = new MySqlCommand(query, conn))
             using (MySqlDataReader reader = command.ExecuteReader())
             {
-
-
                 while (reader.Read())
                 {
-                    if (reader["roles"].ToString() != "[\"ROLE_USER\"]") { continue; }
+                    if (reader["roles"].ToString() != "[\"ROLE_USER\"]") continue;
+
                     DisplayUser user = new DisplayUser(
-                          reader["firstName"].ToString(),
+                        reader["firstName"].ToString(),
                         reader["lastName"].ToString(),
                         reader["email"].ToString(),
                         reader["password"].ToString(),
@@ -189,32 +178,28 @@ namespace GeoProfs
                         int.Parse(reader["bsn"].ToString()),
                         DateTime.Parse(reader["startDate"].ToString()),
                         int.Parse(reader["leaveDaysPerYear"].ToString())
+                    );
 
-
-                        );
-                    
                     return user;
-
                 }
             }
             return null;
-            
-        
         }
-        public void ChangeLeaveStatus(int leaveID, LeaveEnums.LeaveStatus newStatus) {
 
+        public virtual void ChangeLeaveStatus(int leaveID, LeaveEnums.LeaveStatus newStatus)
+        {
             if (conn.State != System.Data.ConnectionState.Open)
                 conn.Open();
+
             var cmd = new MySqlCommand($@"UPDATE `{DatabaseEnums.DatabaseTables.leave}` SET `status` = '{newStatus}' WHERE `id` = '{leaveID}';", conn);
-
             cmd.ExecuteNonQuery();
-
         }
 
-
-        public void AddShift(int userID, UserEnums.UserPositions roles, DateOnly shiftDate,  TimeOnly startTime, TimeOnly endTime) {
+        public void AddShift(int userID, UserEnums.UserPositions roles, DateOnly shiftDate, TimeOnly startTime, TimeOnly endTime)
+        {
             if (conn.State != System.Data.ConnectionState.Open)
                 conn.Open();
+
             var cmd = new MySqlCommand($@"
             INSERT INTO {DatabaseEnums.DatabaseTables.shifts} 
             (userID, startTime, endTime, roles, shiftDate) 
@@ -228,45 +213,56 @@ namespace GeoProfs
         ", conn);
 
             cmd.ExecuteNonQuery();
-
         }
-        // [F]
-        public ManagerUser GetManagerFromLoginCred(string email, string password) {
-            if (conn.State != System.Data.ConnectionState.Open)
-            {
-                conn.Open();
-            }
 
-            string query = $"SELECT *\r\nFROM user\r\nWHERE email = '{email}' AND password = '{password}' AND roles = \"[\\\"ROLE_ADMIN\\\"]\";";
-            ManagerUser displayUser;
+        public ManagerUser GetManagerFromLoginCred(string email, string password)
+        {
+            if (conn.State != System.Data.ConnectionState.Open)
+                conn.Open();
+
+            string query = $"SELECT * FROM user WHERE email = '{MySqlHelper.EscapeString(email)}' AND password = '{MySqlHelper.EscapeString(password)}' AND roles = '[\"ROLE_ADMIN\"]';";
+
             using (MySqlCommand command = new MySqlCommand(query, conn))
             using (MySqlDataReader reader = command.ExecuteReader())
             {
-
-
                 while (reader.Read())
                 {
-                    
-                    ManagerUser user = new ManagerUser(
-                          reader["firstName"].ToString(),
+                    return new ManagerUser(
+                        reader["firstName"].ToString(),
                         reader["lastName"].ToString(),
                         reader["email"].ToString(),
                         reader["password"].ToString(),
                         reader["roles"].ToString(),
                         int.Parse(reader["bsn"].ToString()),
                         DateTime.Parse(reader["startDate"].ToString())
-
-
-                        );
-
-                    return user;
-
+                    );
                 }
             }
             return null;
-
-
         }
 
+        public List<Department> GetDepartments()
+        {
+            if (conn.State != System.Data.ConnectionState.Open)
+                conn.Open();
+
+            string query = $"SELECT * FROM departments;";
+            List<Department> departments = new List<Department>();
+
+            using (MySqlCommand command = new MySqlCommand(query, conn))
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    Department user = new Department(
+                        int.Parse(reader["id"].ToString()),
+                        reader["name"].ToString()
+                    );
+
+                    departments.Add(user);
+                }
+            }
+            return departments;
+        }
     }
 }

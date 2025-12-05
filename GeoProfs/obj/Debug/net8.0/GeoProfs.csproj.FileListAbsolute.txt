@@ -198,3 +198,5 @@ C:\Users\nijme\source\repos\GeoProfs\GeoProfs\obj\Debug\net8.0\refint\GeoProfs.d
 C:\Users\nijme\source\repos\GeoProfs\GeoProfs\obj\Debug\net8.0\GeoProfs.pdb
 C:\Users\nijme\source\repos\GeoProfs\GeoProfs\obj\Debug\net8.0\GeoProfs.genruntimeconfig.cache
 C:\Users\nijme\source\repos\GeoProfs\GeoProfs\obj\Debug\net8.0\ref\GeoProfs.dll
+C:\Users\nijme\source\repos\GeoProfs\GeoProfs\bin\Debug\net8.0\Castle.Core.dll
+C:\Users\nijme\source\repos\GeoProfs\GeoProfs\bin\Debug\net8.0\Moq.dll

@@ -9,7 +9,7 @@ using System.Net.Mime;
 using GeoProfs.Enums;
 namespace GeoProfs
 {
-    internal class EmailService
+    public class EmailService
     {
         string smtpAddress = "smtp.gmail.com";
         int portNumber = 587;
@@ -20,7 +20,7 @@ namespace GeoProfs
         string subject = "Hello";
         string body = "This is a test email";
 
-        public void SendLeaveStatusUpdateEmail(string emailTo, LeaveEnums.LeaveStatus updatedStatus, LeaveRequest leaveRequest) {
+        public virtual void SendLeaveStatusUpdateEmail(string emailTo, LeaveEnums.LeaveStatus updatedStatus, LeaveRequest leaveRequest) {
             using (MailMessage mail = new MailMessage())
             {
                 body = $"The status of your leave request from:\n{leaveRequest.StartDate} till {leaveRequest.EndDate} \nhas been {updatedStatus}";
