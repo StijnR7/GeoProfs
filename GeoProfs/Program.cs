@@ -15,7 +15,7 @@ class Program
         using var conn = new MySqlConnection(connString);
         if (conn.State != System.Data.ConnectionState.Open)
             conn.Open();
-
+        Audit_trail audit = new(conn);
         Database database = new(conn);
         UserManager userManager = new(conn);
         LeaveManager leaveM = new(conn);
@@ -56,6 +56,7 @@ class Program
             {
                 case "1":
                     userManager.CreateUser();
+                    
                     break;
                 case "2":
                     userManager.DeleteUser();
@@ -65,6 +66,7 @@ class Program
                     break;
                 case "4":
                     AppSettings.AdjustSettings();
+                    audit.SaveActionToAuditTrail("Adjusted Settings");
                     break;
                 case "0":
                     exit = true;

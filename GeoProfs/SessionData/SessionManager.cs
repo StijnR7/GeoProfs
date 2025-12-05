@@ -30,6 +30,7 @@ namespace GeoProfs.SessionData
             
             }
             SessionUser.sessionUser = loginuser;
+            SessionUser.sessionUser.ID = loginuser.ID;
             Console.WriteLine($"Logged in as: {loginuser.FirstName}");
             return true;
         

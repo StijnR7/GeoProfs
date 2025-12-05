@@ -28,6 +28,20 @@ namespace GeoProfs
             cmd.Parameters.AddWithValue("@id", userId);
             cmd.ExecuteNonQuery();
         }
+        public virtual void SaveAudit(int userId, string action, DateTime datetime)
+        {
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+        INSERT INTO audit_trail (user_id, action, date_time)
+        VALUES (@userId, @action, @datetime);
+    ";
+
+            cmd.Parameters.AddWithValue("@userId", userId);
+            cmd.Parameters.AddWithValue("@action", action);
+            cmd.Parameters.AddWithValue("@datetime", datetime);
+
+            cmd.ExecuteNonQuery();
+        }
 
 
         public void ShowAllDataFromTable(DatabaseEnums.DatabaseTables table)
@@ -227,7 +241,7 @@ namespace GeoProfs
             {
                 while (reader.Read())
                 {
-                    return new ManagerUser(
+                    ManagerUser user= new ManagerUser(
                         reader["firstName"].ToString(),
                         reader["lastName"].ToString(),
                         reader["email"].ToString(),
@@ -236,6 +250,8 @@ namespace GeoProfs
                         int.Parse(reader["bsn"].ToString()),
                         DateTime.Parse(reader["startDate"].ToString())
                     );
+                    user.ID = int.Parse( reader["id"].ToString());
+                    return user;
                 }
             }
             return null;
