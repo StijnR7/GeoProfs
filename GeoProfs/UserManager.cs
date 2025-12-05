@@ -121,7 +121,12 @@ namespace GeoProfs
 
             database.SaveUserToDatabase(newUser);
         }
-       
+        public void DeleteUser() {
+            Console.WriteLine("user id?");
+            database.DeleteUser(int.Parse(Console.ReadLine()));
+        
+        
+        }
         public Dictionary<string, string> askDefaultUserValues() {
             Dictionary<string, string> defaultUserValues = new Dictionary<string, string>()
         {

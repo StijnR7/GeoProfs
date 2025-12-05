@@ -17,7 +17,7 @@ namespace GeoProfs.SessionData
             this.conn = conn;
             this.database = new Database(conn);
         }
-        public void Login() {
+        public bool Login() {
 
             Console.WriteLine("Email?");
             string email = Console.ReadLine();
@@ -26,11 +26,12 @@ namespace GeoProfs.SessionData
             ManagerUser loginuser =  database.GetManagerFromLoginCred(email, password);
             if (loginuser == null) {
                 Console.WriteLine("User not admin or doesnt exist.");
-                return;
+                return false;
             
             }
             SessionUser.sessionUser = loginuser;
             Console.WriteLine($"Logged in as: {loginuser.FirstName}");
+            return true;
         
         }
     }
