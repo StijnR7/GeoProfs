@@ -20,7 +20,7 @@ namespace GeoProfs
         public int SuperVisor { get; set; }
         public DateTime StartDate { get; set; }
         public int LeaveDaysPerYear { get; set; } = 12;
-        public Department Department { get; set; }
+        public string Department { get; set; }
 
         public EmployeeUser(string firstName, string lastName, string email, string password, string roles, int bsn, DateTime startDate, int superVisor)
         {
@@ -46,7 +46,7 @@ namespace GeoProfs
         public DateTime StartDate { get; set; }
         public int LeaveDaysPerYear { get; set; } = 12;
         public int SuperVisor { get; set; } = 0;
-        public Department Department { get; set; }
+        public string Department { get; set; }
         public ManagerUser(string firstName, string lastName, string email, string password, string roles, int bsn, DateTime startDate)
         {
             FirstName = firstName;
@@ -70,7 +70,7 @@ namespace GeoProfs
         public DateTime StartDate { get; set; }
         public int LeaveDaysPerYear { get; set; } = 365;
         public int SuperVisor { get; set; } = 0;
-        public Department Department { get; set; }
+        public string Department { get; set; }
         public CEOUser(string firstName, string lastName, string email, string password, string roles, int bsn, DateTime startDate, int leaveDaysPerYear)
         {
             FirstName = firstName;
@@ -94,7 +94,7 @@ namespace GeoProfs
         public DateTime StartDate { get; set; }
         public int LeaveDaysPerYear { get; set; } = 365;
         public int SuperVisor { get; set; } = 0;
-        public Department Department { get; set; }
+        public string Department { get; set; }
         public DisplayUser(string firstName, string lastName, string email, string password, string roles, int bsn, DateTime startDate, int leaveDaysPerYear)
         {
             FirstName = firstName;

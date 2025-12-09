@@ -1,4 +1,5 @@
 ﻿using GeoProfs.Enums;
+using GeoProfs.SessionData;
 using MySqlConnector;
 using MySqlX.XDevAPI.Relational;
 using System;
@@ -24,8 +25,9 @@ namespace GeoProfs
         public virtual void DeleteUser(int userId)
         {
             using var cmd = conn.CreateCommand();
-            cmd.CommandText = "DELETE FROM user WHERE id = @id";
+            cmd.CommandText = "DELETE FROM user WHERE id = @id AND department = @dept";
             cmd.Parameters.AddWithValue("@id", userId);
+            cmd.Parameters.AddWithValue("@dept", SessionUser.sessionUser.Department);
             cmd.ExecuteNonQuery();
         }
         public virtual void SaveAudit(int userId, string action, DateTime datetime)
@@ -161,7 +163,7 @@ namespace GeoProfs
          {newUser.SuperVisor}, 
          '{newUser.StartDate:yyyy-MM-dd}', 
          {newUser.LeaveDaysPerYear},
-         '{MySqlHelper.EscapeString(newUser.Department.Name)}'
+         '{MySqlHelper.EscapeString(newUser.Department)}'
         );
     ", conn);
 
@@ -181,7 +183,7 @@ namespace GeoProfs
             {
                 while (reader.Read())
                 {
-                    if (reader["roles"].ToString() != "[\"ROLE_USER\"]") continue;
+                    
 
                     DisplayUser user = new DisplayUser(
                         reader["firstName"].ToString(),
@@ -193,7 +195,7 @@ namespace GeoProfs
                         DateTime.Parse(reader["startDate"].ToString()),
                         int.Parse(reader["leaveDaysPerYear"].ToString())
                     );
-
+                    user.Department = reader["department"].ToString();
                     return user;
                 }
             }
@@ -251,6 +253,7 @@ namespace GeoProfs
                         DateTime.Parse(reader["startDate"].ToString())
                     );
                     user.ID = int.Parse( reader["id"].ToString());
+                    user.Department = reader["department"].ToString();
                     return user;
                 }
             }
@@ -280,5 +283,28 @@ namespace GeoProfs
             }
             return departments;
         }
+        public List<AuditItem> getAuditItems()
+        {
+            if (conn.State != System.Data.ConnectionState.Open)
+                conn.Open();
+            string query = $"SELECT * FROM audit_trail;";
+            List<AuditItem> auditItems = new List<AuditItem>();
+            using (MySqlCommand command = new MySqlCommand(query, conn))
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    AuditItem auditItem = new AuditItem(
+                        reader.GetInt32("id"),
+                        reader.GetInt32("user_id"),
+                        reader.GetString("action"),
+                        reader.GetDateTime("date_time")
+                    );
+                    auditItems.Add(auditItem);
+                }
+            }
+            return auditItems;
+        }
     }
 }
+    

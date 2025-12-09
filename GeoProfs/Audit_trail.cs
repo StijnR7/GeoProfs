@@ -24,5 +24,13 @@ namespace GeoProfs
         
         
         }
+        public void ShowAuditTrailData()
+        {
+            List<AuditItem> auditItems = database.getAuditItems();
+            for (int i = 0; i < auditItems.Count; i++)
+            {
+                Console.WriteLine($"ID: {auditItems[i].id} | User ID: {auditItems[i].user_id} | Action: {auditItems[i].action} | Date/Time: {auditItems[i].date_time}");
+            }
+        }
     }
 }

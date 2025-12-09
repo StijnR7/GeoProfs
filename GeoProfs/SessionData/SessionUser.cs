@@ -9,5 +9,7 @@ namespace GeoProfs.SessionData
     public static class SessionUser
     {
         public static ManagerUser sessionUser { get; set; }
+        public static Audit_trail audit_trail { get; set; }
+
     }
 }

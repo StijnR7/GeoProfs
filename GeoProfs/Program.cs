@@ -34,8 +34,9 @@ class Program
                 Console.WriteLine("Press any key to retry...");
                 Console.ReadKey();
             }
-        }
 
+        }
+        SessionUser.audit_trail = audit;
         // Once logged in, show menu
         bool exit = false;
         while (!exit)
@@ -46,6 +47,7 @@ class Program
             Console.WriteLine("2. Delete User");
             Console.WriteLine("3. Manage Leave Requests");
             Console.WriteLine("4. Adjust App Settings");
+            Console.WriteLine("5. See audit trail");
             Console.WriteLine("0. Exit");
             Console.WriteLine("=========================");
             Console.Write("Select an option: ");
@@ -66,7 +68,10 @@ class Program
                     break;
                 case "4":
                     AppSettings.AdjustSettings();
-                    audit.SaveActionToAuditTrail("Adjusted Settings");
+                    
+                    break;
+                case "5":
+                    audit.ShowAuditTrailData();
                     break;
                 case "0":
                     exit = true;

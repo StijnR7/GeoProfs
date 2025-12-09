@@ -18,7 +18,7 @@ namespace GeoProfs
         public int LeaveDaysPerYear { get; set; }
         public int ID { get; set; }
         public int SuperVisor {  get; set; } 
-        public Department Department { get; set; }
+        public string Department { get; set; }
 
 
     }

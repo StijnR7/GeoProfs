@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GeoProfs.SessionData;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -47,6 +48,7 @@ namespace GeoProfs
             if (success1)
             {
                 Console.WriteLine("Successfully updated");
+               SessionUser.audit_trail.SaveActionToAuditTrail("Adjusted Settings");
             }
             else { 
                 Console.WriteLine("Updating settings failed. Make sure the input is a valid number.");

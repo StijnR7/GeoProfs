@@ -24,7 +24,7 @@ namespace GeoProfs
             return allLeaveReq.Where(leaveReq => leaveReq.Status == LeaveEnums.LeaveStatus.pending).ToList();
 
         }
-        // [F]  
+        
         public void ManageLeaveRequests()
         {
             if (SessionUser.sessionUser == null ) {
@@ -46,11 +46,12 @@ namespace GeoProfs
                 for (int i = 0; i < leaveRequestsPending.Count; i++)
                 {
                     DisplayUser currentusers = database.GetUserFromID(leaveRequestsPending[i].UserId);
+                    if (currentusers.Department != SessionUser.sessionUser.Department) { continue; }
                     Console.WriteLine($"" +
                         $"Name: {currentusers.FirstName} {currentusers.LastName}" +
                         $"\nDate: {leaveRequestsPending[i].StartDate} ---- {leaveRequestsPending[i].EndDate}" +
                         $"\nLeave days left: {currentusers.LeaveDaysPerYear}" +
-                        $"\nPosition: {currentusers.Position}" +
+                        $"\nPosition: {currentusers.Department}" +
                         $"\n[{i}] Manage request\n");
 
                 }
@@ -103,11 +104,13 @@ namespace GeoProfs
                             case 1:
                                 database.ChangeLeaveStatus(leaveRequestsPending[choice].Id, LeaveEnums.LeaveStatus.accepted);
                                 emailService.SendLeaveStatusUpdateEmail(chosenusers.Email, LeaveEnums.LeaveStatus.accepted, leaveRequestsPending[choice]);
+                                SessionUser.audit_trail.SaveActionToAuditTrail("Accepted leave request");
                                 break;
                             case 2:
                                 database.ChangeLeaveStatus(leaveRequestsPending[choice].Id, LeaveEnums.LeaveStatus.denied);
 
                                 emailService.SendLeaveStatusUpdateEmail(chosenusers.Email, LeaveEnums.LeaveStatus.denied, leaveRequestsPending[choice]);
+                                SessionUser.audit_trail.SaveActionToAuditTrail("Denied leave request");
                                 break;
                             case 3:
 

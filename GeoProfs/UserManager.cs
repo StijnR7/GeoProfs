@@ -7,6 +7,7 @@ using static GeoProfs.UserManager;
 using GeoProfs.Enums;
 using MySqlConnector;
 using System.Runtime.CompilerServices;
+using GeoProfs.SessionData;
 namespace GeoProfs
 {
     internal class UserManager
@@ -31,7 +32,7 @@ namespace GeoProfs
             Console.WriteLine("Department?");
             for (int i = 0; i < departments.Count; i++) {
                 Console.WriteLine($"[{i}]: {departments[i].Name}\n");
-            
+                
             }
             int choice1;
             bool success = int.TryParse(Console.ReadLine(), out choice1);
@@ -64,7 +65,7 @@ namespace GeoProfs
 
 
                         );
-                    user.Department = chosenDepartment;
+                    user.Department = chosenDepartment.ToString();
                     
                     return user;
                     
@@ -84,7 +85,7 @@ namespace GeoProfs
 
 
                    );
-                    mUser.Department = chosenDepartment;
+                    mUser.Department = chosenDepartment.ToString();
                     return mUser;
                    
                 case "CEO":
@@ -103,7 +104,7 @@ namespace GeoProfs
 
 
                   );
-                    cUser.Department = chosenDepartment;
+                    cUser.Department = chosenDepartment.ToString();
                     return cUser;
 
 
@@ -114,18 +115,21 @@ namespace GeoProfs
         }
         public void CreateUser()
         {
-        
+            
             Console.WriteLine("Role?");
             string role = Console.ReadLine();
             IUser newUser = CreateUserObject(role);
 
             database.SaveUserToDatabase(newUser);
+            SessionUser.audit_trail.SaveActionToAuditTrail("Created user");
+            
         }
         public void DeleteUser() {
             Console.WriteLine("user id?");
             database.DeleteUser(int.Parse(Console.ReadLine()));
-        
-        
+            SessionUser.audit_trail.SaveActionToAuditTrail("Deleted user");
+
+
         }
         public Dictionary<string, string> askDefaultUserValues() {
             Dictionary<string, string> defaultUserValues = new Dictionary<string, string>()
