@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Leave extends Model
 {
@@ -11,18 +11,9 @@ class Leave extends Model
 
     protected $fillable = [
         'user_id',
-        'start_date',
-        'end_date',
-        'status',
+        'leave_start',
+        'leave_end',
+        'type',
+        'reason',
     ];
-
-    protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
-    ];
-
-    public function user()
-    {
-        return $this->belongsTo(\App\Models\User::class);
-    }
 }
