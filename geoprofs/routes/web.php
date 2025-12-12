@@ -31,15 +31,16 @@ Route::post('/login', function (Request $request) {
 })->name('login.post');
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $userLeaves = Auth::user()->leaves()->orderBy('created_at', 'desc')->get();
+    return view('dashboard', ['userLeaves' => $userLeaves]);
 })->middleware('auth')->name('dashboard');
 
-// ✅ Leave submit route toegevoegd
+
 Route::post('/leave/submit', [LeaveController::class, 'store'])
     ->middleware('auth')
     ->name('leave.submit');
 
-// Logout route
+
 Route::post('/logout', function (Request $request) {
     Auth::logout();
     $request->session()->invalidate();

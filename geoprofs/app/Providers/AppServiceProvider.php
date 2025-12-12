@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Models\Leave;
+use App\Observers\LeaveObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,8 +19,8 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-        //
-    }
+  public function boot()
+{
+    Leave::observe(LeaveObserver::class);
+}
 }

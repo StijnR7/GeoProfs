@@ -45,4 +45,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the user's leaves.
+     */
+    public function leaves()
+    {
+        return $this->hasMany(Leave::class);
+    }
 }
