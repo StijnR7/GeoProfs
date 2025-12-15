@@ -15,7 +15,7 @@ using System;
             public DateTime StartDate { get; set; }
             public DateTime EndDate { get; set; }
             public LeaveEnums.LeaveStatus Status { get; set; } = LeaveEnums.LeaveStatus.pending;
-
+            public string Reason { get; set; } = "No reason";
             public LeaveRequest(int UserId, DateTime StartDate, DateTime EndDate) { 
                 this.UserId = UserId;
                 this.StartDate = StartDate;

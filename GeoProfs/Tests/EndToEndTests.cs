@@ -1,9 +1,10 @@
-﻿using NUnit.Framework;
+﻿using GeoProfs;
+using MySqlConnector;
+using NUnit.Framework;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using MySqlConnector;
-using GeoProfs;
 
 namespace GeoProfs.Tests
 {
@@ -12,7 +13,7 @@ namespace GeoProfs.Tests
     {
         private MySqlConnection conn;
         private Database db;
-
+        private string projPath = "C:\\Users\\nijme\\source\\repos\\GeoProfs";
         [SetUp]
         public void Setup()
         {
@@ -41,32 +42,48 @@ namespace GeoProfs.Tests
             }
         }
 
+       
         [Test]
-        public void EndToEnd_UserCreation_SavesToDatabase()
-        {
-            // Simulate console input for creating a new employee
-            var input = new StringReader(
-                "employee\n" +          // role
-                "John\n" +              // first name
-                "Doe\n" +               // last name
-                "john@example.com\n" +  // email
-                "pwd\n" +               // password
-                "123\n" +               // employee number
-                "2025-01-01\n" +        // start date
-                "12\n" +                // leave days
-                "0\n" +                 // department id
-                "0\n"                   // supervisor id
-            );
-            Console.SetIn(input);
 
-            var userManager = new UserManager(conn);
+        async public void EndToEnd_Login() {
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "dotnet",
+                    Arguments = $"run --project \"{projPath}\"", // run the CLI project
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
 
-            // Act: run the actual creation flow
-            userManager.CreateUser();
+            process.Start();
 
-            // Assert: verify user was saved in DB
-            var users = db.getAllUsers();
-            Assert.That(users.Any(u => u.Email == "john@example.com"), Is.True);
+            // Write the two inputs (e.g., username and password)
+            using (var sw = process.StandardInput)
+            {
+                if (sw.BaseStream.CanWrite)
+                {
+                    await sw.WriteLineAsync("Test");  // first input
+                    await sw.WriteLineAsync("Test"); // second input
+                }
+            }
+
+            // Read the output
+            string output = await process.StandardOutput.ReadToEndAsync();
+            string error = await process.StandardError.ReadToEndAsync();
+
+            process.WaitForExit();
+
+            // Assertions using Assert.That
+            Assert.That(process.ExitCode, Is.EqualTo(0), $"CLI exited with error: {error}");
+            Assert.That(output, Does.Contain("User not admin or doesnt exist"));
+            Assert.That(output, Does.Contain("Login failed. Try again."));
+            Assert.That(output, Does.Contain("Press any key to retry..."));
+
         }
+
     }
 }

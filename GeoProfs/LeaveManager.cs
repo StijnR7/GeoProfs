@@ -52,6 +52,7 @@ namespace GeoProfs
                         $"\nDate: {leaveRequestsPending[i].StartDate} ---- {leaveRequestsPending[i].EndDate}" +
                         $"\nLeave days left: {currentusers.LeaveDaysPerYear}" +
                         $"\nPosition: {currentusers.Department}" +
+                        $"\nReason: {leaveRequestsPending[i].Reason}"+
                         $"\n[{i}] Manage request\n");
 
                 }

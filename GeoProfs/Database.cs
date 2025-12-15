@@ -78,6 +78,7 @@ namespace GeoProfs
                     );
 
                     Enum.TryParse(reader["status"].ToString(), out LeaveEnums.LeaveStatus currentStatus);
+                    req.Reason = reader["reason"].ToString(); 
                     req.Status = currentStatus;
 
                     int leaveID;
