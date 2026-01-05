@@ -24,10 +24,11 @@ namespace GeoProfs
             return allLeaveReq.Where(leaveReq => leaveReq.Status == LeaveEnums.LeaveStatus.pending).ToList();
 
         }
-        
+
         public void ManageLeaveRequests()
         {
-            if (SessionUser.sessionUser == null ) {
+            if (SessionUser.sessionUser == null)
+            {
                 Console.WriteLine("Not logged in");
                 return;
             }
@@ -52,7 +53,7 @@ namespace GeoProfs
                         $"\nDate: {leaveRequestsPending[i].StartDate} ---- {leaveRequestsPending[i].EndDate}" +
                         $"\nLeave days left: {currentusers.LeaveDaysPerYear}" +
                         $"\nPosition: {currentusers.Department}" +
-                        $"\nReason: {leaveRequestsPending[i].Reason}"+
+                        $"\nReason: {leaveRequestsPending[i].Reason}" +
                         $"\n[{i}] Manage request\n");
 
                 }
@@ -159,8 +160,59 @@ namespace GeoProfs
                 }
                 else { Console.WriteLine("Not an option"); }
             }
-
-
         }
+
+            public List<LeaveRequest> GetAcceptedLeaveRequests()
+        {
+            if (SessionUser.sessionUser == null)
+            {
+                Console.WriteLine("Not logged in");
+                return new List<LeaveRequest>();
+            }
+
+            List<LeaveRequest> allLeaveRequests = database.GetAllLeaveRequests();
+
+            List<LeaveRequest> acceptedRequests = allLeaveRequests
+                .Where(leaveReq =>
+                {
+                    if (leaveReq.Status != LeaveEnums.LeaveStatus.accepted)
+                        return false;
+
+                    DisplayUser user = database.GetUserFromID(leaveReq.UserId);
+                    if (user == null)
+                        return false;
+
+                    return user.Department == SessionUser.sessionUser.Department;
+                })
+                .ToList();
+
+            return acceptedRequests;
+        }
+        public void ShowAcceptedLeaveRequests()
+        {
+            var acceptedRequests = GetAcceptedLeaveRequests();
+            if (acceptedRequests.Count == 0)
+            {
+                Console.WriteLine("No accepted leave requests found in your department.");
+                return;
+            }
+
+            foreach (var leave in acceptedRequests)
+            {
+                DisplayUser user = database.GetUserFromID(leave.UserId);
+                Console.WriteLine(
+                    $"Name: {user.FirstName} {user.LastName}\n" +
+                    $"Date: {leave.StartDate:yyyy-MM-dd} ---- {leave.EndDate:yyyy-MM-dd}\n" +
+                    $"Leave days left: {user.LeaveDaysPerYear}\n" +
+                    $"Position: {user.Department}\n" +
+                    $"Reason: {leave.Reason}\n" +
+                    $"Status: {leave.Status}\n" +
+                    "-------------------------------------"
+                );
+            }
+        }
+
+
     }
 }
+

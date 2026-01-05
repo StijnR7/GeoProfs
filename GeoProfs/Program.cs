@@ -50,7 +50,8 @@ class Program
             Console.WriteLine("4. Adjust App Settings");
             Console.WriteLine("5. See audit trail");
             Console.WriteLine("6. Create Shift");
-            Console.WriteLine("7. View All Shifts"); // <-- new option
+            Console.WriteLine("7. View All Shifts");
+            Console.WriteLine("8. View Accepted Leave Requests"); 
             Console.WriteLine("0. Exit");
             Console.WriteLine("=========================");
             Console.Write("Select an option: ");
@@ -80,6 +81,9 @@ class Program
                 case "7":
                     database.ShowAllShifts();
                     break;
+                case "8":
+                    leaveM.ShowAcceptedLeaveRequests(); 
+                    break;
                 case "0":
                     exit = true;
                     break;
@@ -94,6 +98,7 @@ class Program
                 Console.ReadKey();
             }
         }
+
 
     }
 }

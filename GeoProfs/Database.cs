@@ -321,9 +321,9 @@ namespace GeoProfs
                 {
                     shifts.Add((
                         int.Parse(reader["userID"].ToString()),
-                        reader.GetDateTime("shiftDate"), 
+                        reader.GetDateTime("shiftDate"),
                         reader.GetTimeSpan("startTime"),
-                        reader.GetTimeSpan("endTime")  
+                        reader.GetTimeSpan("endTime")
                     ));
                 }
             }
@@ -331,17 +331,20 @@ namespace GeoProfs
             foreach (var shift in shifts)
             {
                 DisplayUser user = GetUserFromID(shift.UserID);
+                if (user == null || user.Department != SessionUser.sessionUser.Department)
+                    continue;
 
                 Console.WriteLine(
                     $"UserID: {shift.UserID} | " +
-                    $"Name: {user?.FirstName ?? "Unknown"} | " +
-                    $"Department: {user?.Department ?? "Unknown"} | " +
+                    $"Name: {user.FirstName} | " +
+                    $"Department: {user.Department} | " +
                     $"Date: {shift.ShiftDateTime:yyyy-MM-dd} | " +
                     $"From: {shift.Start} | " +
                     $"To: {shift.End}"
                 );
             }
         }
+
 
 
 
