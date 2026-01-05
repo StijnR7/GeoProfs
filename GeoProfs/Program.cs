@@ -15,29 +15,30 @@ class Program
         using var conn = new MySqlConnection(connString);
         if (conn.State != System.Data.ConnectionState.Open)
             conn.Open();
+
         Audit_trail audit = new(conn);
         Database database = new(conn);
         UserManager userManager = new(conn);
         LeaveManager leaveM = new(conn);
         SessionManager sessionManager = new(conn);
+        ShiftManager shiftManager = new(conn);
 
-       
         while (SessionUser.sessionUser == null)
         {
             Console.Clear();
             Console.WriteLine("=== GeoProfs Login ===");
             bool success = sessionManager.Login();
-            
+
             if (!success)
             {
                 Console.WriteLine("Login failed. Try again.");
                 Console.WriteLine("Press any key to retry...");
                 Console.ReadKey();
             }
-
         }
+
         SessionUser.audit_trail = audit;
-        // Once logged in, show menu
+
         bool exit = false;
         while (!exit)
         {
@@ -48,6 +49,8 @@ class Program
             Console.WriteLine("3. Manage Leave Requests");
             Console.WriteLine("4. Adjust App Settings");
             Console.WriteLine("5. See audit trail");
+            Console.WriteLine("6. Create Shift");
+            Console.WriteLine("7. View All Shifts"); // <-- new option
             Console.WriteLine("0. Exit");
             Console.WriteLine("=========================");
             Console.Write("Select an option: ");
@@ -58,7 +61,6 @@ class Program
             {
                 case "1":
                     userManager.CreateUser();
-                    
                     break;
                 case "2":
                     userManager.DeleteUser();
@@ -68,16 +70,21 @@ class Program
                     break;
                 case "4":
                     AppSettings.AdjustSettings();
-                    
                     break;
                 case "5":
                     audit.ShowAuditTrailData();
+                    break;
+                case "6":
+                    shiftManager.AddNewShift();
+                    break;
+                case "7":
+                    database.ShowAllShifts();
                     break;
                 case "0":
                     exit = true;
                     break;
                 default:
-                    Console.WriteLine("Invalid choice. Try again.");
+                    Console.WriteLine("Invalid choice.");
                     break;
             }
 
@@ -87,5 +94,6 @@ class Program
                 Console.ReadKey();
             }
         }
+
     }
 }

@@ -212,25 +212,25 @@ namespace GeoProfs
             cmd.ExecuteNonQuery();
         }
 
-        public void AddShift(int userID, UserEnums.UserPositions roles, DateOnly shiftDate, TimeOnly startTime, TimeOnly endTime)
+        public void AddShift(int userID, DateOnly shiftDate, TimeOnly startTime, TimeOnly endTime)
         {
             if (conn.State != System.Data.ConnectionState.Open)
                 conn.Open();
 
             var cmd = new MySqlCommand($@"
-            INSERT INTO {DatabaseEnums.DatabaseTables.shifts} 
-            (userID, startTime, endTime, roles, shiftDate) 
-            VALUES 
-            ('{userID}',
-             '{startTime}',
-             '{endTime}',
-             '{roles}',
-             '{shiftDate:yyyy-MM-dd}'
-            );
-        ", conn);
+        INSERT INTO {DatabaseEnums.DatabaseTables.shifts} 
+        (userID, startTime, endTime, shiftDate) 
+        VALUES 
+        ('{userID}',
+         '{startTime}',
+         '{endTime}',
+         '{shiftDate:yyyy-MM-dd}'
+        );
+    ", conn);
 
             cmd.ExecuteNonQuery();
         }
+
 
         public ManagerUser GetManagerFromLoginCred(string email, string password)
         {
@@ -306,6 +306,46 @@ namespace GeoProfs
             }
             return auditItems;
         }
+        public void ShowAllShifts()
+        {
+            if (conn.State != System.Data.ConnectionState.Open)
+                conn.Open();
+
+            string query = $"SELECT * FROM `{DatabaseEnums.DatabaseTables.shifts}` ORDER BY shiftDate, startTime;";
+            var shifts = new List<(int UserID, DateTime ShiftDateTime, TimeSpan Start, TimeSpan End)>();
+
+            using (var cmd = new MySqlCommand(query, conn))
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    shifts.Add((
+                        int.Parse(reader["userID"].ToString()),
+                        reader.GetDateTime("shiftDate"), 
+                        reader.GetTimeSpan("startTime"),
+                        reader.GetTimeSpan("endTime")  
+                    ));
+                }
+            }
+
+            foreach (var shift in shifts)
+            {
+                DisplayUser user = GetUserFromID(shift.UserID);
+
+                Console.WriteLine(
+                    $"UserID: {shift.UserID} | " +
+                    $"Name: {user?.FirstName ?? "Unknown"} | " +
+                    $"Department: {user?.Department ?? "Unknown"} | " +
+                    $"Date: {shift.ShiftDateTime:yyyy-MM-dd} | " +
+                    $"From: {shift.Start} | " +
+                    $"To: {shift.End}"
+                );
+            }
+        }
+
+
+
+
     }
 }
     

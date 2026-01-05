@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GeoProfs")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2f1bf97ad5573631032f9e485748a2ddf00ff201")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f640c9bad2598147c6eb6ad002067bd75feacf59")]
 [assembly: System.Reflection.AssemblyProductAttribute("GeoProfs")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GeoProfs")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
