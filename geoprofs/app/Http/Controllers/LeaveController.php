@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Leave;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\CreateLeaveRequest;
+use Carbon\Carbon;
 
 class LeaveController extends Controller
 {
@@ -22,5 +24,41 @@ class LeaveController extends Controller
         $leave->save();
 
         return back()->with('success', 'Aanvraag succesvol ingediend!');
+    }
+
+    public function approve($id)
+    {
+        $leave = Leave::findOrFail($id);
+        $user = $leave->user;
+
+        if ($leave->type === 'verlof') {
+            $start = Carbon::parse($leave->leave_start);
+            $end = Carbon::parse($leave->leave_end);
+            $days = $start->diffInDays($end) + 1; // inclusief einddatum
+
+            if ($user->leave_balance >= $days) {
+                $user->leave_balance -= $days;
+                $user->save();
+                $leave->status = 'approved';
+                $leave->save();
+                return back()->with('success', 'Verlofaanvraag goedgekeurd. ' . $days . ' dagen afgetrokken.');
+            } else {
+                return back()->with('error', 'Onvoldoende verlofdagen beschikbaar.');
+            }
+        } else {
+            // Voor ziek, gewoon goedkeuren zonder aftrek
+            $leave->status = 'approved';
+            $leave->save();
+            return back()->with('success', 'Ziekaanvraag goedgekeurd.');
+        }
+    }
+
+    public function reject($id)
+    {
+        $leave = Leave::findOrFail($id);
+        $leave->status = 'rejected';
+        $leave->save();
+
+        return back()->with('success', 'Aanvraag afgewezen.');
     }
 }
