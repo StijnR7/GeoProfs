@@ -32,13 +32,9 @@ class LeaveController extends Controller
         $user = $leave->user;
 
         if ($leave->type === 'verlof') {
-            $start = Carbon::parse($leave->leave_start);
-            $end = Carbon::parse($leave->leave_end);
-            $days = $start->diffInDays($end) + 1; // inclusief einddatum
+            $days = $leave->leave_start->diffInDays($leave->leave_end) + 1;
 
             if ($user->leave_balance >= $days) {
-                $user->leave_balance -= $days;
-                $user->save();
                 $leave->status = 'approved';
                 $leave->save();
                 return back()->with('success', 'Verlofaanvraag goedgekeurd. ' . $days . ' dagen afgetrokken.');

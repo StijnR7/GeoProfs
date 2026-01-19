@@ -41,6 +41,19 @@
         .leaves-table th, .leaves-table td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
         .leaves-table th { background: #f0f0f0; font-weight: bold; }
         .leaves-table tr:hover { background: #f9f9f9; }
+
+        .signature {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 12px;
+            color: #999;
+            text-decoration: none;
+            z-index: 1000;
+        }
+        .signature:hover {
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -223,5 +236,7 @@
             event.target.classList.add('active');
         }
     </script>
+
+    <a href="#" class="signature">Niek Brock</a>
 </body>
 </html>

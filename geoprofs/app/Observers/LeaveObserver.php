@@ -20,17 +20,17 @@ class LeaveObserver
      */
 
 
-public function updated(Leave $leave)
-{
-    if($leave->status === 'approved' && $leave->getOriginal('status') !== 'approved') {
-        $user = $leave->user;
-        $days = \Carbon\Carbon::parse($leave->leave_start)
-            ->diffInDays(\Carbon\Carbon::parse($leave->leave_end)) + 1;
+    public function updated(Leave $leave)
+    {
+        if($leave->status === 'approved' && $leave->getOriginal('status') !== 'approved' && $leave->type === 'verlof') {
+            $user = $leave->user;
+            $days = \Carbon\Carbon::parse($leave->leave_start)
+                ->diffInDays(\Carbon\Carbon::parse($leave->leave_end)) + 1;
 
-        $user->leave_balance = max($user->leave_balance - $days, 0);
-        $user->save();
+            $user->leave_balance = max($user->leave_balance - $days, 0);
+            $user->save();
+        }
     }
-}
 
 
     /**

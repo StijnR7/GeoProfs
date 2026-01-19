@@ -7,7 +7,7 @@ use App\Http\Controllers\LeaveController;
 use App\Models\Leave;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Route::get('/login', function () {
