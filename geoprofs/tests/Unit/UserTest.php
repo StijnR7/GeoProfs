@@ -28,4 +28,22 @@ class UserTest extends TestCase
         $this->assertInstanceOf(Leave::class, $user->leaves->first());
         $this->assertEquals($leave->id, $user->leaves->first()->id);
     }
+
+    public function test_user_fillable_attributes()
+    {
+        $user = User::create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password',
+            'leave_balance' => 20,
+            'functie' => 'employee',
+            'age' => 30,
+        ]);
+
+        $this->assertEquals('Test User', $user->name);
+        $this->assertEquals('test@example.com', $user->email);
+        $this->assertEquals(20, $user->leave_balance);
+        $this->assertEquals('employee', $user->functie);
+        $this->assertEquals(30, $user->age);
+    }
 }

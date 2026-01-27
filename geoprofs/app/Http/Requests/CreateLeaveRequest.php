@@ -22,7 +22,7 @@ class CreateLeaveRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'leave_start' => 'required|date|after_or_equal:today',
+            'leave_start' => 'required|date|after_or_equal:yesterday',
             'leave_end' => 'required|date|after_or_equal:leave_start',
             'type' => 'required|in:ziek,verlof',
             'reason' => 'nullable|string|max:255',

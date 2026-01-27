@@ -21,4 +21,17 @@ class UserController extends Controller
     {
         return $request->user();
     }
+
+    public function update(Request $request)
+    {
+        $request->validate([
+            'age' => 'nullable|integer|min:18|max:100',
+            'functie' => 'nullable|string|max:255',
+        ]);
+
+        $user = $request->user();
+        $user->update($request->only(['age', 'functie']));
+
+        return redirect()->back()->with('success', 'Accountgegevens bijgewerkt.');
+    }
 }

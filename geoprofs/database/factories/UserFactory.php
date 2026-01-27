@@ -31,6 +31,7 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'leave_balance' => fake()->numberBetween(0, 30),
             'functie' => fake()->randomElement(['user', 'admin']),
+            'age' => fake()->numberBetween(18, 65),
         ];
     }
 
