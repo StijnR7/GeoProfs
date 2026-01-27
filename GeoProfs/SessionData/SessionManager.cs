@@ -17,23 +17,34 @@ namespace GeoProfs.SessionData
             this.conn = conn;
             this.database = new Database(conn);
         }
-        public bool Login() {
-
+        public bool Login()
+        {
             Console.WriteLine("Email?");
-            string email = Console.ReadLine();
+            string? email = Console.ReadLine();
+
             Console.WriteLine("password?");
-            string password = Console.ReadLine();
-            ManagerUser loginuser =  database.GetManagerFromLoginCred(email, password);
-            if (loginuser == null) {
+            string? password = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
                 Console.WriteLine("User not admin or doesnt exist.");
                 return false;
-            
             }
+
+            ManagerUser loginuser = database.GetManagerFromLoginCred(email, password);
+
+            if (loginuser == null)
+            {
+                Console.WriteLine("User not admin or doesnt exist.");
+                return false;
+            }
+
             SessionUser.sessionUser = loginuser;
             SessionUser.sessionUser.ID = loginuser.ID;
+
             Console.WriteLine($"Logged in as: {loginuser.FirstName}");
             return true;
-        
         }
+
     }
 }

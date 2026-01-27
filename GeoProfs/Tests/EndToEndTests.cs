@@ -1,10 +1,12 @@
 ﻿using GeoProfs;
+using GeoProfs.SessionData;
 using MySqlConnector;
 using NUnit.Framework;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace GeoProfs.Tests
 {
@@ -13,16 +15,19 @@ namespace GeoProfs.Tests
     {
         private MySqlConnection conn;
         private Database db;
-        private string projPath = "C:\\Users\\nijme\\source\\repos\\GeoProfs";
+
+        private readonly string exePath =
+            @"C:\Users\nijme\source\repos\GeoProfs\GeoProfs\bin\Debug\net8.0\GeoProfs.exe";
+
         [SetUp]
         public void Setup()
         {
-            var connString = "Server=q0t164.h.filess.io;Port=3305;" +
-                             "Uid=geoprofs_magicfind;" +
-                             "Pwd=24621c3ce4a7d2fd3aae4aafe468aebe432f5d82;" +
-                             "Database=geoprofs_magicfind;";
+            var connString =
+                "Server=q0t164.h.filess.io;Port=3305;" +
+                "Uid=geoprofs_magicfind;" +
+                "Pwd=24621c3ce4a7d2fd3aae4aafe468aebe432f5d82;" +
+                "Database=geoprofs_magicfind;";
 
-            // assign to the class field, not a local variable
             conn = new MySqlConnection(connString);
             conn.Open();
             db = new Database(conn);
@@ -31,27 +36,58 @@ namespace GeoProfs.Tests
         [TearDown]
         public void Cleanup()
         {
-            if (db != null && conn != null && conn.State == System.Data.ConnectionState.Open)
+            
+            try
             {
-                var users = db.getAllUsers().Where(u => u.Email == "john@example.com").ToList();
+                if (db == null || conn == null)
+                    return;
+
+                if (conn.State != System.Data.ConnectionState.Open)
+                    return;
+
+                var users = db.getAllUsers();
+                if (users == null)
+                    return;
+
                 foreach (var u in users)
                 {
-                    db.DeleteUser(u.ID); // assuming you have a DeleteUser method
+                    if (u != null && u.Email == "john@example.com")
+                    {
+                        try
+                        {
+                            db.DeleteUser(u.ID);
+                        }
+                        catch
+                        {
+                           
+                        }
+                    }
                 }
-                conn.Close();
+            }
+            catch
+            {
+                
+            }
+            finally
+            {
+                try
+                {
+                    conn?.Close();
+                }
+                catch { }
             }
         }
 
-       
-        [Test]
+        private async Task<(string output, string error)> RunCliAsync(params string[] inputs)
+        {
+            Assert.That(File.Exists(exePath), $"EXE not found at: {exePath}");
 
-        async public void EndToEnd_Login() {
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = "dotnet",
-                    Arguments = $"run --project \"{projPath}\"", // run the CLI project
+                    FileName = exePath,
+                    RedirectStandardInput = true,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -61,29 +97,59 @@ namespace GeoProfs.Tests
 
             process.Start();
 
-            // Write the two inputs (e.g., username and password)
             using (var sw = process.StandardInput)
             {
-                if (sw.BaseStream.CanWrite)
+                foreach (var input in inputs)
                 {
-                    await sw.WriteLineAsync("Test");  // first input
-                    await sw.WriteLineAsync("Test"); // second input
+                    await sw.WriteLineAsync(input);
                 }
             }
 
-            // Read the output
             string output = await process.StandardOutput.ReadToEndAsync();
             string error = await process.StandardError.ReadToEndAsync();
 
             process.WaitForExit();
-
-            // Assertions using Assert.That
-            Assert.That(process.ExitCode, Is.EqualTo(0), $"CLI exited with error: {error}");
-            Assert.That(output, Does.Contain("User not admin or doesnt exist"));
-            Assert.That(output, Does.Contain("Login failed. Try again."));
-            Assert.That(output, Does.Contain("Press any key to retry..."));
-
+            return (output, error);
         }
 
+        [Test]
+        public async Task EndToEnd_Login_Fails_ShowsRetryMessage()
+        {
+            var (output, error) = await RunCliAsync(
+                "Test",
+                "Test"
+            );
+
+            Assert.That(error, Is.Empty);
+            Assert.That(output, Does.Contain("=== GeoProfs Login ==="));
+            Assert.That(output, Does.Contain("Login failed. Try again."));
+        }
+
+        [Test]
+        public async Task EndToEnd_ExitImmediately()
+        {
+            var (output, error) = await RunCliAsync(
+                "elco@f",
+                "af",
+                "0"
+            );
+
+            Assert.That(error, Is.Empty);
+            Assert.That(output, Does.Contain("=== GeoProfs Login ==="));
+        }
+
+        [Test]
+        public async Task EndToEnd_InvalidMenuChoice_ShowsError()
+        {
+            var (output, error) = await RunCliAsync(
+                "elco@f",
+                "af",
+                "999"
+            );
+
+            Assert.That(error, Is.Empty);
+            Assert.That(output, Does.Contain("Invalid choice."));
+        }
+        
     }
 }

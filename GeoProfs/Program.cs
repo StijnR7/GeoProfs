@@ -23,17 +23,30 @@ class Program
         SessionManager sessionManager = new(conn);
         ShiftManager shiftManager = new(conn);
 
+        // LOGIN LOOP
         while (SessionUser.sessionUser == null)
         {
-            Console.Clear();
+            if (!Console.IsOutputRedirected)
+                Console.Clear();
+
             Console.WriteLine("=== GeoProfs Login ===");
+
             bool success = sessionManager.Login();
 
-            if (!success)
+            if (success)
+                break; // login successful
+
+            Console.WriteLine("Login failed. Try again.");
+
+            if (!Console.IsInputRedirected)
             {
-                Console.WriteLine("Login failed. Try again.");
                 Console.WriteLine("Press any key to retry...");
                 Console.ReadKey();
+            }
+            else
+            {
+                // stop loop during E2E tests to avoid infinite looping
+                break;
             }
         }
 
@@ -42,8 +55,10 @@ class Program
         bool exit = false;
         while (!exit)
         {
-            Console.Clear();
-            Console.WriteLine($"=== GeoProfs CLI Menu (Logged in as {SessionUser.sessionUser.FirstName}) ===");
+            if (!Console.IsOutputRedirected)
+                Console.Clear();
+
+            Console.WriteLine($"=== GeoProfs CLI Menu (Logged in as {SessionUser.sessionUser?.FirstName ?? "Unknown"}) ===");
             Console.WriteLine("1. Create User");
             Console.WriteLine("2. Delete User");
             Console.WriteLine("3. Manage Leave Requests");
@@ -51,7 +66,7 @@ class Program
             Console.WriteLine("5. See audit trail");
             Console.WriteLine("6. Create Shift");
             Console.WriteLine("7. View All Shifts");
-            Console.WriteLine("8. View Accepted Leave Requests"); 
+            Console.WriteLine("8. View Accepted Leave Requests");
             Console.WriteLine("0. Exit");
             Console.WriteLine("=========================");
             Console.Write("Select an option: ");
@@ -82,7 +97,7 @@ class Program
                     database.ShowAllShifts();
                     break;
                 case "8":
-                    leaveM.ShowAcceptedLeaveRequests(); 
+                    leaveM.ShowAcceptedLeaveRequests();
                     break;
                 case "0":
                     exit = true;
@@ -94,11 +109,17 @@ class Program
 
             if (!exit)
             {
-                Console.WriteLine("\nPress any key to return to menu...");
-                Console.ReadKey();
+                if (!Console.IsInputRedirected)
+                {
+                    Console.WriteLine("\nPress any key to return to menu...");
+                    Console.ReadKey();
+                }
+                else
+                {
+                    // stop E2E test from waiting indefinitely
+                    break;
+                }
             }
         }
-
-
     }
 }
