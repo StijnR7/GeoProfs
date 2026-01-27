@@ -65,7 +65,7 @@ namespace GeoProfs
 
 
                         );
-                    user.Department = chosenDepartment.ToString();
+                    user.Department = chosenDepartment.Name;
                     
                     return user;
                     
@@ -85,7 +85,7 @@ namespace GeoProfs
 
 
                    );
-                    mUser.Department = chosenDepartment.ToString();
+                    mUser.Department = chosenDepartment.Name;
                     return mUser;
                    
                 case "CEO":
@@ -104,7 +104,7 @@ namespace GeoProfs
 
 
                   );
-                    cUser.Department = chosenDepartment.ToString();
+                    cUser.Department = chosenDepartment.Name;
                     return cUser;
 
 
@@ -140,7 +140,8 @@ namespace GeoProfs
             {"Password", null },
             {"Bsn", null },
             {"StartDate", null },
-            {"LeaveDaysPerYear", null }
+            {"LeaveDaysPerYear", null },
+
 
 
         };
