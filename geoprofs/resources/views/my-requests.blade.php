@@ -128,6 +128,6 @@
         @endif
     </div>
 
-    <a href="https://github.com/SamuelDebruyn" class="signature" target="_blank">Made by Samuel Debruyn</a>
+    
 </body>
 </html>

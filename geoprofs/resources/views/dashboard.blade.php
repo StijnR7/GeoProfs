@@ -18,8 +18,6 @@
         .account-dropdown:hover .dropdown-content { display: block; }
         .dropdown-link { display: block; padding: 12px 16px; text-align: left; background: none; border: none; cursor: pointer; color: #ecf0f1; font-size: 14px; text-decoration: none; transition: background 0.3s; }
         .dropdown-link:hover { background: #2c3e50; }
-        .logout-btn { width: 100%; padding: 12px 16px; text-align: left; background: none; border: none; cursor: pointer; color: #ecf0f1; font-size: 14px; transition: background 0.3s; }
-        .logout-btn:hover { background: #e74c3c; }
 
         .nav-buttons { display: flex; gap: 8px; background: #34495e; padding: 12px 20px; border-bottom: 1px solid #2c3e50; }
         .nav-btn { padding: 8px 16px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; transition: all 0.3s; font-weight: 500; text-decoration: none; display: inline-block; }
@@ -45,7 +43,7 @@
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; position: relative; z-index: 1; }
         .calendar-day-header { padding: 10px; text-align: center; font-weight: 700; color: #ffffff; background: rgba(255,255,255,0.15); border-radius: 10px; font-size: 13px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .calendar-day { padding: 10px; text-align: center; cursor: pointer; border-radius: 10px; transition: all 0.3s; min-height: 36px; display: flex; align-items: center; justify-content: center; position: relative; font-size: 14px; color: #ffffff; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .caleAndar-day:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .calendar-day:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
         .calendar-day.selected { background: #ff6b6b; color: white; font-weight: 700; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 0 20px rgba(255,107,107,0.4); }
         .calendar-day.selected-range { background: rgba(255,107,107,0.6); color: white; border: 1px solid rgba(255,107,107,0.8); font-weight: 600; box-shadow: 0 0 15px rgba(255,107,107,0.3); }
         .calendar-day.today { background: #ffd93d; color: #2c3e50; font-weight: 700; border: 2px solid #ffb142; box-shadow: 0 0 20px rgba(255,217,61,0.5); }
@@ -71,32 +69,48 @@
         .success { background: #d4edda; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #c3e6cb; font-size: 14px; }
         .error { background: #f8d7da; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #f5c6cb; font-size: 14px; }
 
-        .date-inputs { display: none; }
-
         .signature { position: fixed; bottom: 10px; right: 10px; font-size: 10px; color: #6c757d; text-decoration: none; z-index: 1000; }
         .signature:hover { color: #495057; }
+
+        /* Extra style voor logout knop in navbar */
+        .navbar .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border-radius: 4px;
+            padding: 8px 15px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .navbar .logout-btn:hover {
+            background: #c0392b;
+        }
     </style>
 </head>
 <body>
     <!-- Top Navbar -->
     <div class="navbar">
         <h1>Geoprofs</h1>
-        <div class="account-dropdown">
-            <button class="account-btn">{{ Auth::user()->name }} ▼</button>
-            <div class="dropdown-content">
-                <a href="{{ route('dashboard') }}" class="dropdown-link">Ziek/Verlofaanvraag</a>
-                <a href="{{ route('my-requests') }}" class="dropdown-link">Mijn Aanvragen</a>
-                <a href="{{ route('leave-days') }}" class="dropdown-link">Verlofdagen</a>
-                <a href="{{ route('department-calendar') }}" class="dropdown-link">Afdelingsagenda</a>
-                @if(Auth::user()->functie === 'admin')
-                    <a href="{{ route('manage-requests') }}" class="dropdown-link">Beheer Aanvragen</a>
-                @endif
-                <a href="{{ route('account') }}" class="dropdown-link">Accountgegevens</a>
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="logout-btn">Uitloggen</button>
-                </form>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="account-dropdown">
+                <button class="account-btn">{{ Auth::user()->name }} ▼</button>
+                <div class="dropdown-content">
+                    <a href="{{ route('dashboard') }}" class="dropdown-link">Ziek/Verlofaanvraag</a>
+                    <a href="{{ route('my-requests') }}" class="dropdown-link">Mijn Aanvragen</a>
+                    <a href="{{ route('leave-days') }}" class="dropdown-link">Verlofdagen</a>
+                    <a href="{{ route('department-calendar') }}" class="dropdown-link">Afdelingsagenda</a>
+                    @if(Auth::user()->functie === 'admin')
+                        <a href="{{ route('manage-requests') }}" class="dropdown-link">Beheer Aanvragen</a>
+                    @endif
+                    <a href="{{ route('account') }}" class="dropdown-link">Accountgegevens</a>
+                </div>
             </div>
+            <!-- Logout knop naast user -->
+            <form action="{{ route('logout') }}" method="POST" style="margin:0;">
+                @csrf
+                <button type="submit" class="logout-btn">Uitloggen</button>
+            </form>
         </div>
     </div>
 
@@ -141,9 +155,7 @@
                                 <button class="calendar-nav-btn" onclick="changeMonth(1)">▶</button>
                             </div>
                         </div>
-                        <div class="calendar-grid" id="calendar-grid">
-
-                        </div>
+                        <div class="calendar-grid" id="calendar-grid"></div>
                     </div>
                 </div>
             </div>
@@ -152,15 +164,20 @@
                 <div class="leave-form">
                     <h3>Verlof/Ziekmelding Indienen</h3>
                     <div class="selected-dates" id="selected-dates">
-                        Selecteer datums in de kalender hiernaast
+                        Selecteer datums in de kalender hiernaast of gebruik de datumvelden
                     </div>
 
                     <form action="{{ route('leave.submit') }}" method="POST" id="leave-form">
                         @csrf
 
-                        <div class="date-inputs">
-                            <input type="hidden" id="leave_start" name="leave_start">
-                            <input type="hidden" id="leave_end" name="leave_end">
+                        <!-- Date Inputs -->
+                        <div class="form-group">
+                            <label for="leave_start">Startdatum:</label>
+                            <input type="date" id="leave_start" name="leave_start">
+                        </div>
+                        <div class="form-group">
+                            <label for="leave_end">Einddatum:</label>
+                            <input type="date" id="leave_end" name="leave_end">
                         </div>
 
                         <div class="form-group">
@@ -188,18 +205,14 @@
         let currentDate = new Date();
         let selectedDates = [];
         let firstSelectedDate = null;
-        let userLeaves = @json([]); // Empty array since we don't need user leaves on dashboard
+        let userLeaves = @json([]);
 
         function generateCalendar() {
             const calendarGrid = document.getElementById('calendar-grid');
             const calendarTitle = document.getElementById('calendar-title');
-
             calendarTitle.textContent = currentDate.toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' });
 
-            // Clear previous calendar
             calendarGrid.innerHTML = '';
-
-            // Add day headers
             const daysOfWeek = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'];
             daysOfWeek.forEach(day => {
                 const dayHeader = document.createElement('div');
@@ -208,13 +221,11 @@
                 calendarGrid.appendChild(dayHeader);
             });
 
-            // Get first day of month and last day of month
             const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
             const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
             const startDate = new Date(firstDay);
-            startDate.setDate(startDate.getDate() - firstDay.getDay() + 1); // Start from Monday
+            startDate.setDate(startDate.getDate() - firstDay.getDay() + 1);
 
-            // Generate calendar days
             for (let i = 0; i < 42; i++) {
                 const dayElement = document.createElement('div');
                 const dayDate = new Date(startDate);
@@ -223,42 +234,30 @@
                 dayElement.className = 'calendar-day';
                 dayElement.textContent = dayDate.getDate();
 
-                // Check if day is in current month
                 if (dayDate.getMonth() !== currentDate.getMonth()) {
                     dayElement.classList.add('disabled');
                 } else {
-                    // Check if day is today
                     const today = new Date();
-                    if (dayDate.toDateString() === today.toDateString()) {
-                        dayElement.classList.add('today');
-                    }
+                    if (dayDate.toDateString() === today.toDateString()) dayElement.classList.add('today');
 
-                    // Check if day has leave
                     userLeaves.forEach(leave => {
                         const leaveStart = new Date(leave.leave_start);
                         const leaveEnd = new Date(leave.leave_end);
                         if (dayDate >= leaveStart && dayDate <= leaveEnd) {
                             dayElement.classList.add('has-leave');
-                            if (leave.type === 'verlof') {
-                                dayElement.classList.add('verlof');
-                            }
+                            if (leave.type === 'verlof') dayElement.classList.add('verlof');
                         }
                     });
 
-                    // Check if day is selected
                     const year = dayDate.getFullYear();
                     const month = String(dayDate.getMonth() + 1).padStart(2, '0');
                     const day = String(dayDate.getDate()).padStart(2, '0');
                     const dateString = `${year}-${month}-${day}`;
                     if (selectedDates.includes(dateString)) {
-                        if (firstSelectedDate === dateString || selectedDates[selectedDates.length - 1] === dateString) {
-                            dayElement.classList.add('selected');
-                        } else {
-                            dayElement.classList.add('selected-range');
-                        }
+                        if (firstSelectedDate === dateString || selectedDates[selectedDates.length - 1] === dateString) dayElement.classList.add('selected');
+                        else dayElement.classList.add('selected-range');
                     }
 
-                    // Add click handler
                     dayElement.addEventListener('click', () => selectDate(dayDate));
                 }
 
@@ -269,37 +268,29 @@
         }
 
         function selectDate(date) {
-            // Create date string in local timezone
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             const dateString = `${year}-${month}-${day}`;
 
-            if (firstSelectedDate === null) {
-                // First selection
+            if (!firstSelectedDate) {
                 firstSelectedDate = dateString;
                 selectedDates = [dateString];
             } else if (firstSelectedDate === dateString) {
-                // Clicking the same date again - deselect all
                 firstSelectedDate = null;
                 selectedDates = [];
             } else {
-                // Select range from firstSelectedDate to clicked date
-                const start = new Date(firstSelectedDate);
-                const end = new Date(dateString);
-
-                // Ensure start is before end
-                if (start > end) {
-                    [start, end] = [end, start];
-                }
+                let start = new Date(firstSelectedDate);
+                let end = new Date(dateString);
+                if (start > end) [start, end] = [end, start];
 
                 selectedDates = [];
                 const current = new Date(start);
                 while (current <= end) {
-                    const currentYear = current.getFullYear();
-                    const currentMonth = String(current.getMonth() + 1).padStart(2, '0');
-                    const currentDay = String(current.getDate()).padStart(2, '0');
-                    selectedDates.push(`${currentYear}-${currentMonth}-${currentDay}`);
+                    const y = current.getFullYear();
+                    const m = String(current.getMonth() + 1).padStart(2, '0');
+                    const d = String(current.getDate()).padStart(2, '0');
+                    selectedDates.push(`${y}-${m}-${d}`);
                     current.setDate(current.getDate() + 1);
                 }
             }
@@ -310,20 +301,40 @@
         function updateSelectedDates() {
             const selectedDatesDiv = document.getElementById('selected-dates');
             const submitBtn = document.getElementById('submit-btn');
+            const startInput = document.getElementById('leave_start').value;
+            const endInput = document.getElementById('leave_end').value;
 
-            if (selectedDates.length === 0) {
-                selectedDatesDiv.textContent = 'Selecteer datums in de kalender hiernaast';
+            if (selectedDates.length === 0 && (!startInput || !endInput)) {
+                selectedDatesDiv.textContent = 'Selecteer datums in de kalender hiernaast of gebruik de datumvelden';
                 submitBtn.disabled = true;
-            } else {
-                const startDate = new Date(selectedDates[0]);
-                const endDate = new Date(selectedDates[selectedDates.length - 1]);
-
-                document.getElementById('leave_start').value = selectedDates[0];
-                document.getElementById('leave_end').value = selectedDates[selectedDates.length - 1];
-
-                selectedDatesDiv.textContent = `Geselecteerd: ${startDate.toLocaleDateString('nl-NL')} - ${endDate.toLocaleDateString('nl-NL')} (${selectedDates.length} dagen)`;
-                submitBtn.disabled = false;
+                return;
             }
+
+            // Als gebruiker de velden invult, update selectedDates
+            if (startInput && endInput) {
+                let startDate = new Date(startInput);
+                let endDate = new Date(endInput);
+                if (startDate > endDate) [startDate, endDate] = [endDate, startDate];
+
+                selectedDates = [];
+                const current = new Date(startDate);
+                while (current <= endDate) {
+                    const y = current.getFullYear();
+                    const m = String(current.getMonth() + 1).padStart(2, '0');
+                    const d = String(current.getDate()).padStart(2, '0');
+                    selectedDates.push(`${y}-${m}-${d}`);
+                    current.setDate(current.getDate() + 1);
+                }
+                firstSelectedDate = selectedDates[0];
+            }
+
+            const startDate = new Date(selectedDates[0]);
+            const endDate = new Date(selectedDates[selectedDates.length - 1]);
+            document.getElementById('leave_start').value = selectedDates[0];
+            document.getElementById('leave_end').value = selectedDates[selectedDates.length - 1];
+
+            selectedDatesDiv.textContent = `Geselecteerd: ${startDate.toLocaleDateString('nl-NL')} - ${endDate.toLocaleDateString('nl-NL')} (${selectedDates.length} dagen)`;
+            submitBtn.disabled = false;
         }
 
         function changeMonth(delta) {
@@ -331,9 +342,13 @@
             generateCalendar();
         }
 
-        // Initialize calendar
-        document.addEventListener('DOMContentLoaded', generateCalendar);
-    </script>
+        document.addEventListener('DOMContentLoaded', () => {
+            generateCalendar();
 
+            // Voeg listeners toe aan date-inputs
+            document.getElementById('leave_start').addEventListener('change', updateSelectedDates);
+            document.getElementById('leave_end').addEventListener('change', updateSelectedDates);
+        });
+    </script>
 </body>
 </html>

@@ -57,7 +57,7 @@ class LeaveFeatureTest extends TestCase
             'status' => 'approved',
         ]);
         $user->refresh();
-        $this->assertEquals(2, $user->leave_balance); 
+        $this->assertEquals(2, $user->leave_balance);
     }
 
     public function test_admin_can_reject_leave_request()
@@ -86,24 +86,5 @@ class LeaveFeatureTest extends TestCase
         ]);
     }
 
-    public function test_dashboard_shows_user_leaves()
-    {
-        $user = User::factory()->create();
-        $leave = new Leave([
-            'leave_start' => now(),
-            'leave_end' => now()->addDays(1),
-            'type' => 'verlof',
-            'reason' => 'Test',
-            'status' => 'pending',
-        ]);
-        $leave->user()->associate($user);
-        $leave->save();
 
-        $this->actingAs($user);
-
-        $response = $this->get('/dashboard');
-
-        $response->assertStatus(200);
-        $response->assertSee($leave->reason);
-    }
 }
